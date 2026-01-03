@@ -335,7 +335,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
             <img src="./assets/licorne-head-256.png" alt="Liquorne"/>
             <div class="brandTitle">
               <div class="h1">Liquorne</div>
-              <div class="sub">V3.3.1 • prototype</div>
+              <div class="sub">V3.3.2 • prototype</div>
             </div>
           </div>
           <div class="actions">
