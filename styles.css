@@ -416,77 +416,86 @@ select{appearance:none}
 .btnGold:active{opacity:.86}
 
 
-/* --- Liquorne V3.5: header centered + light content surface --- */
-.topbarInnerCenter{
-  max-width: var(--max);
-  margin:0 auto;
-  padding: 10px 16px 12px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:10px;
+/* --- Liquorne V3.5.1 (safe): centered brand header + light content surface (CSS-only) --- */
+
+/* Center header layout without touching JS */
+.topbarInner{
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px 12px;
 }
-.brandCenter{
-  position:relative;
+.brand{
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.brandTitle{ text-align:center; }
+.brandTitle .sub{ opacity:.85; }
+
+/* Make the logo pop with a subtle gold accent */
+.brand img{
   width: 68px;
   height: 68px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.brandHalo{
-  position:absolute;
-  inset:-10px;
-  border-radius: 22px;
-  background: radial-gradient(circle at 50% 40%, rgba(246,227,166,.26), transparent 60%);
-  filter: blur(0.2px);
-  pointer-events:none;
-}
-.brandLogo{
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  filter:
-    drop-shadow(0 14px 26px rgba(0,0,0,.45))
-    drop-shadow(0 0 18px rgba(217,178,95,.30));
-}
-.actionsCenter{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-@media (max-width:420px){
-  .brandCenter{width:64px;height:64px}
-  .brandLogo{width:60px;height:60px}
-  .actionsCenter{gap:8px}
+  border-radius: 20px;
+  border: 1px solid rgba(217,178,95,.55);
+  background: rgba(255,255,255,.04);
+  box-shadow:
+    0 14px 26px rgba(0,0,0,.45),
+    0 0 18px rgba(217,178,95,.28);
 }
 
-.pageApp{background: transparent}
-.surfaceLight{
-  flex:1;
-  background: #F5F1E7;
-  color: #0B1220;
-  border-top:1px solid rgba(0,0,0,.06);
+/* Center navigation pills */
+.actions{
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.surfaceLight .small{color: rgba(11,18,32,.70)}
-.surfaceLight .divider{border-color: rgba(0,0,0,.08)}
-.surfaceLight .input{
-  background: rgba(255,255,255,.90);
-  border:1px solid rgba(0,0,0,.10);
+
+/* Light content surface for all pages that have a topbar */
+.page{
+  background:
+    linear-gradient(180deg, transparent 0px, transparent 150px, #F5F1E7 150px, #F5F1E7 100%);
+}
+.topbar + .container{
+  color: #0B1220;
+}
+.topbar + .container .small{ color: rgba(11,18,32,.70); }
+.topbar + .container .divider{ border-color: rgba(0,0,0,.10); }
+
+/* Inputs on light surface */
+.topbar + .container .input{
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(0,0,0,.12);
   color:#0B1220;
 }
 
-.surfaceLight .card{
-  background: rgba(255,255,255,.92);
-  border:1px solid rgba(0,0,0,.08);
-  box-shadow: 0 10px 24px rgba(0,0,0,.10);
+/* Cards become light & readable */
+.topbar + .container .card{
+  background: rgba(255,255,255,.94);
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 10px 22px rgba(0,0,0,.10);
   backdrop-filter: none;
 }
-.surfaceLight .kpi .value{color:#0B1220}
-.surfaceLight .kpi .label{color: rgba(11,18,32,.62)}
-.surfaceLight .tag{
-  border-color: rgba(217,178,95,.45);
+.topbar + .container .kpi .value{ color:#0B1220; }
+.topbar + .container .kpi .label{ color: rgba(11,18,32,.62); }
+
+/* Gold accents for tags / scores */
+.topbar + .container .score{
+  color:#0B1220;
+  background: rgba(217,178,95,.18);
+  border: 1px solid rgba(217,178,95,.40);
+}
+.topbar + .container .tag{
+  border: 1px solid rgba(217,178,95,.45);
   background: rgba(217,178,95,.10);
   color: #3A2A0A;
 }
-.surfaceLight .score{
-  color:#0B1220;
-  background: rgba(217,178,95,.18);
-  border-color: rgba(217,178,95,.40);
+
+@media (max-width:420px){
+  .brand img{ width:64px; height:64px; border-radius:18px; }
+  .topbarInner{ padding: 10px 14px 10px; gap: 8px; }
+  .actions{ gap: 8px; }
 }
