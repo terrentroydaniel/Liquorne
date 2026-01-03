@@ -1,14 +1,14 @@
-Liquorne — prototype web V2.1
+Liquorne — prototype web V2.2
 
 Nouveautés :
-- Page login (logo + user/password) et entrée dans l'app si login OK
-- KPI (Possédés/Goûtés/Wishlist + note moyenne)
-- Tri (note, nom, ABV)
-- Persistance localStorage : avis + cave + session
+- Ajout d’un spiritueux avec photo de l’étiquette
+  - bouton 📷 (caméra) + fallback Galerie/Photo
+  - flash/torch : best-effort (dépend du navigateur/appareil)
+- Enregistrement de la photo + spiritueux en localStorage
+- Après ajout : choix "ajouter un avis maintenant" ou plus tard
 
 Identifiants démo :
 - demo / liquorne
 
-Si le logo n'apparaît pas après mise à jour GitHub Pages :
-- sur Android Chrome : menu ⋮ → Paramètres → Confidentialité → Effacer données de navigation (cache)
-- ou désinstaller/réinstaller l'icône PWA
+Note :
+- Les photos sont stockées en local (localStorage). Le code réduit automatiquement la taille (max ~1024px).
