@@ -2,10 +2,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
 (() => {
   const app = document.getElementById('app');
 
-  const storeReviewsKey = 'liquorne_reviews_v22';
-  const storeCellarKey  = 'liquorne_cellar_v22';
-  const storeSessionKey = 'liquorne_session_v22';
-  const storeSpiritsKey = 'liquorne_spirits_v22';
+  const storeReviewsKey = 'liquorne_reviews_v3';
+  const storeCellarKey  = 'liquorne_cellar_v3';
+  const storeSessionKey = 'liquorne_session_v3';
+  const storeSpiritsKey = 'liquorne_spirits_v3';
 
   const DEMO_USER = 'demo';
   const DEMO_PASS = 'liquorne';
@@ -17,16 +17,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
   };
 
   function loadJson(key, fallback){
-    try{
-      const raw = localStorage.getItem(key);
-      if(!raw) return fallback;
-      const parsed = JSON.parse(raw);
-      return parsed ?? fallback;
-    }catch{ return fallback; }
+    try{ const raw = localStorage.getItem(key); if(!raw) return fallback; return JSON.parse(raw) ?? fallback; }
+    catch{ return fallback; }
   }
-  function saveJson(key, value){
-    localStorage.setItem(key, JSON.stringify(value));
-  }
+  function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
   function cryptoRandomId(){
     if (window.crypto && crypto.getRandomValues){
       const a = new Uint32Array(4);
@@ -36,8 +30,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     return Math.random().toString(16).slice(2) + '-' + Date.now().toString(16);
   }
   function esc(s){ return (s ?? '').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-  function seedSpirits(){ return (window.__SPIRITS__ || []).slice(); }
 
+  function seedSpirits(){ return (window.__SPIRITS__ || []).slice(); }
   function defaultReviews(){
     return [{
       id: cryptoRandomId(),
@@ -58,7 +52,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     session: loadJson(storeSessionKey, null),
     spirits: loadJson(storeSpiritsKey, null) ?? seedSpirits(),
     loginError: '',
-    camera: { open:false, stream:null, torchSupported:false, torchOn:false, capturedDataUrl:'', busy:false },
     addDraft: { imageDataUrl:'', name:'', brand:'', type:'Whisky', country:'France', abv:'40', notes:'' }
   };
 
@@ -77,22 +70,26 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     }
     return true;
   }
+
   function computeRating(spiritId){
     const rs = state.reviews.filter(r => r.spiritId === spiritId);
     if(rs.length === 0) return { avg: null, count: 0 };
     const sum = rs.reduce((a,r)=>a + Number(r.rating || 0), 0);
     return { avg: sum/rs.length, count: rs.length };
   }
+
   function getStatus(spiritId){
     const s = state.cellar[spiritId];
     return { owned: !!s?.owned, tasted: !!s?.tasted, wishlist: !!s?.wishlist };
   }
+
   function toggleStatus(spiritId, key){
     const current = state.cellar[spiritId] || { owned:false, tasted:false, wishlist:false, updatedAtIso: new Date().toISOString() };
     const next = { ...current, [key]: !current[key], updatedAtIso: new Date().toISOString() };
     state.cellar = { ...state.cellar, [spiritId]: next };
     persist(); render();
   }
+
   function navTo(route){ state.route = route; render(); }
   function logout(){ state.session = null; persist(); navTo({ name:'login', spiritId:null, prevTab:'home' }); }
 
@@ -104,7 +101,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <img src="./assets/icon-192.png" alt="Liquorne" />
           <div>
             <div class="h1">Liquorne</div>
-            <div class="p">V2.2 — ajout bouteille + photo étiquette</div>
+            <div class="p">V3 — ajout via galerie (photo étiquette)</div>
           </div>
         </div>
         <div class="nav">
@@ -412,8 +409,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         ${spirit.imageDataUrl && spirit.imageDataUrl.startsWith('data:image/') ? `
           <div class="card">
             <div class="small">Photo</div>
-            <div class="previewRow" style="margin-top:10px">
-              <img src="${spirit.imageDataUrl}" alt="photo" />
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px">
+              <img src="${spirit.imageDataUrl}" alt="photo" style="width:88px;height:88px;border-radius:20px;border:1px solid var(--border);object-fit:cover"/>
               <div class="small">Tu peux noter tout de suite, ou revenir plus tard.</div>
             </div>
           </div>
@@ -439,122 +436,54 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <textarea class="input" id="text">Nez agréable, bouche équilibrée, finale propre.</textarea>
 
         <button class="btn" id="save">Enregistrer l’avis</button>
-        <div class="small">(V2.2) Avis sauvegardé dans ton navigateur.</div>
+        <div class="small">(V3) Avis sauvegardé dans ton navigateur.</div>
       </div>
     `;
   }
 
   function loginView(){
     return `
-      <div class="center">
-        <div class="loginCard">
-          <div class="loginTop">
-            <img class="logoBig" src="./assets/icon-512.png" alt="Liquorne" />
-            <div>
-              <div class="loginTitle">Liquorne</div>
-              <div class="loginSubtitle">Connexion (prototype). Entrée dans l’app si login OK.</div>
+      <div class="loginShell">
+        <div class="loginPanel">
+          <div class="loginGrid">
+            <div class="hero">
+              <div class="heroLogo">
+                <img src="./assets/icon-512.png" alt="Liquorne" />
+              </div>
+              <div class="heroTitle">Liquorne</div>
+              <div class="heroTag">
+                Ton Vivino des spiritueux : ajoute une bouteille, note, et retrouve ta cave.
+              </div>
+              <div class="small">Prototype V3 • Connexion locale + bouton Google (simulation)</div>
+            </div>
+
+            <div class="auth">
+              <div class="authTitle">Se connecter</div>
+
+              <button class="googleBtn" id="googleLogin">
+                <span class="googleDot"></span>
+                Continuer avec Google
+              </button>
+
+              <div class="sep">ou</div>
+
+              <div class="small">Identifiant</div>
+              <input class="input" id="login" placeholder="demo" autocomplete="username" />
+
+              <div class="small">Mot de passe</div>
+              <input class="input" id="pass" type="password" placeholder="liquorne" autocomplete="current-password" />
+
+              <button class="btn" id="doLogin">Se connecter</button>
+
+              ${state.loginError ? `<div class="error">${esc(state.loginError)}</div>` : ''}
+
+              <div class="small">Démo : <b>${DEMO_USER}</b> / <b>${DEMO_PASS}</b></div>
+              <div class="small">Google : connecte en “google@demo”.</div>
             </div>
           </div>
-
-          <div class="divider"></div>
-
-          <div class="small">Identifiant</div>
-          <input class="input" id="login" placeholder="demo" autocomplete="username" />
-
-          <div style="height:10px"></div>
-
-          <div class="small">Mot de passe</div>
-          <input class="input" id="pass" type="password" placeholder="liquorne" autocomplete="current-password" />
-
-          <div style="height:12px"></div>
-
-          <button class="btn" id="doLogin">Se connecter</button>
-
-          ${state.loginError ? `<div class="error">${esc(state.loginError)}</div>` : ''}
-
-          <div style="height:12px"></div>
-          <div class="small">Démo : <b>${DEMO_USER}</b> / <b>${DEMO_PASS}</b></div>
         </div>
       </div>
     `;
-  }
-
-  async function openCamera(){
-    state.camera.open = true;
-    state.camera.capturedDataUrl = '';
-    state.camera.torchSupported = false;
-    state.camera.torchOn = false;
-    render();
-
-    const video = document.getElementById('camVideo');
-    if(!video) return;
-
-    try{
-      state.camera.busy = true; render();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
-      state.camera.stream = stream;
-      video.srcObject = stream;
-      await video.play();
-
-      const track = stream.getVideoTracks()[0];
-      const caps = track.getCapabilities ? track.getCapabilities() : null;
-      state.camera.torchSupported = !!(caps && caps.torch);
-
-      state.camera.busy = false; render();
-    }catch{
-      state.camera.busy = false;
-      state.camera.open = false;
-      render();
-      alert("Impossible d'ouvrir la caméra. Utilise 'Galerie/Photo' en alternative.");
-    }
-  }
-
-  function closeCamera(){
-    try{ state.camera.stream?.getTracks().forEach(t => t.stop()); }catch{}
-    state.camera.stream = null;
-    state.camera.open = false;
-    state.camera.torchSupported = false;
-    state.camera.torchOn = false;
-    state.camera.busy = false;
-    render();
-  }
-
-  async function toggleTorch(){
-    if(!state.camera.stream) return;
-    const track = state.camera.stream.getVideoTracks()[0];
-    const next = !state.camera.torchOn;
-    try{
-      await track.applyConstraints({ advanced: [{ torch: next }] });
-      state.camera.torchOn = next;
-      render();
-    }catch{
-      alert("Flash non supporté sur ce navigateur/appareil.");
-    }
-  }
-
-  function captureFrame(){
-    const video = document.getElementById('camVideo');
-    if(!video) return;
-
-    const w = video.videoWidth || 1280;
-    const h = video.videoHeight || 720;
-    const canvas = document.createElement('canvas');
-
-    const maxW = 1024;
-    const scale = Math.min(1, maxW / w);
-    canvas.width = Math.round(w * scale);
-    canvas.height = Math.round(h * scale);
-
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-    state.camera.capturedDataUrl = dataUrl;
-    state.addDraft.imageDataUrl = dataUrl;
-    render();
   }
 
   function fileToDataUrl(file){
@@ -566,56 +495,23 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     });
   }
 
-  function cameraModal(){
-    if(!state.camera.open) return '';
-    const torchBtn = state.camera.torchSupported
-      ? `<button class="iconBtn ${state.camera.torchOn ? 'on' : ''}" id="torchBtn" title="Flash">⚡</button>`
-      : `<button class="iconBtn" id="torchBtn" title="Flash" disabled style="opacity:.45;cursor:not-allowed">⚡</button>`;
-
-    return `
-      <div class="modalBackdrop" role="dialog" aria-modal="true">
-        <div class="modal">
-          <div class="modalHeader">
-            <div class="modalTitle">Prendre la photo de l’étiquette</div>
-            <button class="iconBtn" id="closeCam" title="Fermer">✕</button>
-          </div>
-          <div class="modalBody">
-            <div class="videoWrap">
-              <video id="camVideo" playsinline></video>
-            </div>
-
-            <div class="camBar">
-              <div class="camLeft">
-                ${torchBtn}
-                <label class="btnGhost" style="display:flex; align-items:center; gap:10px; cursor:pointer">
-                  📁 Galerie / Photo
-                  <input id="fileInput" type="file" accept="image/*" capture="environment" style="display:none" />
-                </label>
-              </div>
-
-              <div class="camRight">
-                <button class="captureBtn" id="captureBtn" title="Capturer">📷</button>
-              </div>
-            </div>
-
-            ${state.camera.capturedDataUrl ? `
-              <div class="card">
-                <div class="small">Aperçu</div>
-                <div class="previewRow" style="margin-top:10px">
-                  <img src="${state.camera.capturedDataUrl}" alt="aperçu" />
-                  <div style="display:flex; gap:10px; flex-wrap:wrap">
-                    <button class="btn" id="usePhoto">Utiliser cette photo</button>
-                    <button class="btnGhost" id="retake">Reprendre</button>
-                  </div>
-                </div>
-              </div>
-            ` : `
-              <div class="small">Astuce : si le flash est grisé, ton navigateur n’expose pas le “torch”.</div>
-            `}
-          </div>
-        </div>
-      </div>
-    `;
+  function downscaleDataUrl(dataUrl, maxW=1024, quality=0.85){
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const w = img.width, h = img.height;
+        const scale = Math.min(1, maxW / w);
+        const cw = Math.round(w * scale);
+        const ch = Math.round(h * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, cw, ch);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
   }
 
   function addSpiritView(){
@@ -633,9 +529,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <div class="toolbar">
             <div>
               <div class="h2">Ajouter un spiritueux</div>
-              <div class="small">Prends la photo de l’étiquette puis complète les infos (si besoin).</div>
+              <div class="small">V3 : import uniquement via galerie (caméra retirée).</div>
             </div>
-            <button class="btn" id="openCamFromAdd" title="Prendre une photo">📷 Photo</button>
           </div>
 
           <div class="divider"></div>
@@ -643,12 +538,12 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center">
             ${img}
             <div style="flex:1; min-width:240px; display:flex; flex-direction:column; gap:10px">
-              <div class="small">Tu peux aussi choisir une photo depuis la galerie :</div>
-              <label class="btnGhost" style="display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; width:fit-content">
-                📁 Choisir une photo
-                <input id="fileInputAdd" type="file" accept="image/*" capture="environment" style="display:none" />
+              <div class="small">Choisis une photo de l’étiquette :</div>
+              <label class="btn" style="display:flex; align-items:center; justify-content:center; gap:10px; cursor:pointer; width:fit-content">
+                📁 Importer depuis la galerie
+                <input id="fileInputAdd" type="file" accept="image/*" style="display:none" />
               </label>
-              <div class="small">La photo est enregistrée en local (prototype).</div>
+              <div class="small">La photo est enregistrée en local (prototype) et réduite (1024px max).</div>
             </div>
           </div>
         </div>
@@ -700,8 +595,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
-
-      ${cameraModal()}
     `;
   }
 
@@ -736,17 +629,16 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
 
     if(state.route.name === 'login'){
       app.innerHTML = loginView();
+
       const login = document.getElementById('login');
       const pass = document.getElementById('pass');
       login.value = DEMO_USER;
       pass.value = DEMO_PASS;
 
-      const doLogin = () => {
+      const doLogin = (user, ok) => {
         state.loginError = '';
-        const u = (login.value || '').trim();
-        const p = (pass.value || '').trim();
-        if(u === DEMO_USER && p === DEMO_PASS){
-          state.session = { user: u, createdAtIso: new Date().toISOString() };
+        if(ok){
+          state.session = { user, createdAtIso: new Date().toISOString() };
           persist();
           navTo({ name:'home', spiritId:null, prevTab:'home' });
         } else {
@@ -755,8 +647,23 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         }
       };
 
-      document.getElementById('doLogin').addEventListener('click', doLogin);
-      pass.addEventListener('keydown', (e) => { if(e.key === 'Enter') doLogin(); });
+      document.getElementById('doLogin').addEventListener('click', () => {
+        const u = (login.value || '').trim();
+        const p = (pass.value || '').trim();
+        doLogin(u, (u === DEMO_USER && p === DEMO_PASS));
+      });
+
+      pass.addEventListener('keydown', (e) => {
+        if(e.key === 'Enter'){
+          const u = (login.value || '').trim();
+          const p = (pass.value || '').trim();
+          doLogin(u, (u === DEMO_USER && p === DEMO_PASS));
+        }
+      });
+
+      document.getElementById('googleLogin').addEventListener('click', () => {
+        doLogin('google@demo', true);
+      });
       return;
     }
 
@@ -804,35 +711,11 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       app.innerHTML = addSpiritView();
       bindNavTabs();
 
-      const bindCameraModal = () => {
-        if(!state.camera.open) return;
-
-        document.getElementById('closeCam')?.addEventListener('click', closeCamera);
-        document.getElementById('torchBtn')?.addEventListener('click', () => { if(state.camera.torchSupported) toggleTorch(); });
-        document.getElementById('captureBtn')?.addEventListener('click', captureFrame);
-
-        document.getElementById('fileInput')?.addEventListener('change', async (e) => {
-          const f = e.target.files && e.target.files[0];
-          if(!f) return;
-          const dataUrl = await fileToDataUrl(f);
-          state.camera.capturedDataUrl = dataUrl;
-          state.addDraft.imageDataUrl = dataUrl;
-          render();
-        });
-
-        document.getElementById('usePhoto')?.addEventListener('click', () => closeCamera());
-        document.getElementById('retake')?.addEventListener('click', () => { state.camera.capturedDataUrl=''; render(); });
-
-        if(!state.camera.stream){
-          setTimeout(() => openCamera(), 0);
-        }
-      };
-
-      document.getElementById('openCamFromAdd')?.addEventListener('click', () => openCamera());
       document.getElementById('fileInputAdd')?.addEventListener('change', async (e) => {
         const f = e.target.files && e.target.files[0];
         if(!f) return;
-        state.addDraft.imageDataUrl = await fileToDataUrl(f);
+        const dataUrl = await fileToDataUrl(f);
+        state.addDraft.imageDataUrl = await downscaleDataUrl(dataUrl, 1024, 0.85);
         render();
       });
 
@@ -894,7 +777,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         }
       });
 
-      bindCameraModal();
       return;
     }
 

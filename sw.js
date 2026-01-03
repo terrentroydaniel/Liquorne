@@ -1,4 +1,4 @@
-const CACHE = 'liquorne-web-v22';
+const CACHE = 'liquorne-web-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -18,7 +18,9 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(self.clients.claim());
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.map(k => k !== CACHE ? caches.delete(k) : Promise.resolve()))).then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', (event) => {

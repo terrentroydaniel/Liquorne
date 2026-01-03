@@ -1,14 +1,14 @@
-Liquorne — prototype web V2.2
+Liquorne — prototype web V3
 
-Nouveautés :
-- Ajout d’un spiritueux avec photo de l’étiquette
-  - bouton 📷 (caméra) + fallback Galerie/Photo
-  - flash/torch : best-effort (dépend du navigateur/appareil)
-- Enregistrement de la photo + spiritueux en localStorage
-- Après ajout : choix "ajouter un avis maintenant" ou plus tard
+Changements demandés :
+- Suppression de l’option “appareil photo” (caméra) : import uniquement via galerie.
+- Nouvelle page de connexion : fond bleu sombre, gros logo (zone haute ~3/4), puis options :
+  - Continuer avec Google (simulation)
+  - ou login / mot de passe (démo)
 
-Identifiants démo :
+Identifiants :
 - demo / liquorne
+- Google : clique sur le bouton → connecte "google@demo"
 
 Note :
-- Les photos sont stockées en local (localStorage). Le code réduit automatiquement la taille (max ~1024px).
+- Les photos sont stockées en local (localStorage) et réduites (max ~1024px) pour limiter la taille.

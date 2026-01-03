@@ -3,8 +3,8 @@
   "short_name": "Liquorne",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0B0B10",
-  "theme_color": "#0B0B10",
+  "background_color": "#071022",
+  "theme_color": "#071022",
   "icons": [
     {
       "src": "assets/icon-192.png",
