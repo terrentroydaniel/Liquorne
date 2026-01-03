@@ -3,8 +3,13 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
   const spirits = window.__SPIRITS__;
   const app = document.getElementById('app');
 
-  const storeReviewsKey = 'liquorne_reviews_v2';
-  const storeCellarKey  = 'liquorne_cellar_v2';
+  const storeReviewsKey = 'liquorne_reviews_v21';
+  const storeCellarKey  = 'liquorne_cellar_v21';
+  const storeSessionKey = 'liquorne_session_v21';
+
+  // ⚠️ Prototype only
+  const DEMO_USER = 'demo';
+  const DEMO_PASS = 'liquorne';
 
   const STATUS = {
     owned:    { key: 'owned',    label: '✅ Possédé'  },
@@ -18,14 +23,11 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       if(!raw) return fallback;
       const parsed = JSON.parse(raw);
       return parsed ?? fallback;
-    }catch{
-      return fallback;
-    }
+    }catch{ return fallback; }
   }
   function saveJson(key, value){
     localStorage.setItem(key, JSON.stringify(value));
   }
-
   function cryptoRandomId(){
     if (window.crypto && crypto.getRandomValues){
       const a = new Uint32Array(4);
@@ -34,7 +36,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     }
     return Math.random().toString(16).slice(2) + '-' + Date.now().toString(16);
   }
-
   function esc(s){ return (s ?? '').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
   function defaultReviews(){
@@ -49,16 +50,28 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
   }
 
   let state = {
-    route: { name: 'home', spiritId: null, prevTab: 'home' }, // home | cellar | detail | addReview
+    route: { name: 'login', spiritId: null, prevTab: 'home' },
     q: '',
     filters: { type:'', country:'', abvMin:'', abvMax:'' },
     reviews: loadJson(storeReviewsKey, null) ?? defaultReviews(),
     cellar:  loadJson(storeCellarKey, null) ?? {},
+    session: loadJson(storeSessionKey, null),
+    loginError: '',
   };
 
   function persist(){
     saveJson(storeReviewsKey, state.reviews);
     saveJson(storeCellarKey, state.cellar);
+    saveJson(storeSessionKey, state.session);
+  }
+  function isLoggedIn(){ return !!(state.session && state.session.user); }
+  function ensureAuth(){
+    if(!isLoggedIn()){
+      state.route = { name:'login', spiritId:null, prevTab:'home' };
+      render();
+      return false;
+    }
+    return true;
   }
 
   function computeRating(spiritId){
@@ -70,11 +83,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
 
   function getStatus(spiritId){
     const s = state.cellar[spiritId];
-    return {
-      owned: !!(s && s.owned),
-      tasted: !!(s && s.tasted),
-      wishlist: !!(s && s.wishlist),
-    };
+    return { owned: !!s?.owned, tasted: !!s?.tasted, wishlist: !!s?.wishlist };
   }
 
   function toggleStatus(spiritId, key){
@@ -85,32 +94,30 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     render();
   }
 
-  function navTo(route){
-    state.route = route;
-    render();
-  }
+  function navTo(route){ state.route = route; render(); }
+  function logout(){ state.session = null; persist(); navTo({ name:'login', spiritId:null, prevTab:'home' }); }
 
   function header(activeTab){
+    const user = state.session?.user ? esc(state.session.user) : '';
     return `
       <div class="header">
         <div class="brand">
-          <img src="assets/icon-192.png" alt="Liquorne" />
+          <img src="./assets/icon-192.png" alt="Liquorne" />
           <div>
             <div class="h1">Liquorne</div>
-            <div class="p">V2 — Ma cave + filtres + persistance</div>
+            <div class="p">V2.1 — login + cave + filtres + tri + KPI</div>
           </div>
         </div>
         <div class="nav">
           <button class="tab ${activeTab==='home' ? 'active' : ''}" data-tab="home">Explorer</button>
           <button class="tab ${activeTab==='cellar' ? 'active' : ''}" data-tab="cellar">Ma cave</button>
+          <button class="tab" id="logout">Se déconnecter${user ? ` (${user})` : ''}</button>
         </div>
       </div>
     `;
   }
 
-  function uniqueSorted(values){
-    return Array.from(new Set(values)).sort((a,b)=>a.localeCompare(b, 'fr'));
-  }
+  function uniqueSorted(values){ return Array.from(new Set(values)).sort((a,b)=>a.localeCompare(b, 'fr')); }
 
   function applyFilters(list){
     const qq = state.q.trim().toLowerCase();
@@ -130,6 +137,29 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       if(abvMax != null && Number.isFinite(abvMax) && s.abv > abvMax) return false;
       return true;
     });
+  }
+
+  function sortList(list, sortKey){
+    const arr = list.slice();
+    if(sortKey === 'rating_desc'){
+      arr.sort((a,b) => (computeRating(b.id).avg ?? -1) - (computeRating(a.id).avg ?? -1));
+    } else if(sortKey === 'abv_desc'){
+      arr.sort((a,b) => b.abv - a.abv);
+    } else if(sortKey === 'abv_asc'){
+      arr.sort((a,b) => a.abv - b.abv);
+    } else if(sortKey === 'name_asc'){
+      arr.sort((a,b) => a.name.localeCompare(b.name, 'fr'));
+    }
+    return arr;
+  }
+
+  function kpis(){
+    const st = Object.values(state.cellar || {});
+    const owned = st.filter(v => v?.owned).length;
+    const tasted = st.filter(v => v?.tasted).length;
+    const wish = st.filter(v => v?.wishlist).length;
+    const myAvg = state.reviews.length ? (state.reviews.reduce((a,r)=>a+Number(r.rating||0),0)/state.reviews.length) : null;
+    return { owned, tasted, wish, myAvg };
   }
 
   function spiritCardHtml(s){
@@ -159,7 +189,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     `;
   }
 
-  function filtersHtml(){
+  function filtersHtml(sortKey){
     const types = uniqueSorted(spirits.map(s => s.type));
     const countries = uniqueSorted(spirits.map(s => s.country));
 
@@ -179,32 +209,50 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <input class="input" id="abvMax" inputmode="decimal" placeholder="ABV max" value="${esc(state.filters.abvMax)}" />
         </div>
         <div class="divider"></div>
-        <div class="small">Astuce : sur Android → Chrome ⋮ → “Ajouter à l’écran d’accueil” (PWA).</div>
+        <div class="toolbar">
+          <div class="small">Astuce : sur Android → Chrome ⋮ → “Ajouter à l’écran d’accueil” (PWA).</div>
+          <select id="sort" style="max-width:260px">
+            <option value="rating_desc" ${sortKey==='rating_desc'?'selected':''}>Trier : note ↓</option>
+            <option value="name_asc" ${sortKey==='name_asc'?'selected':''}>Trier : nom A→Z</option>
+            <option value="abv_desc" ${sortKey==='abv_desc'?'selected':''}>Trier : ABV ↓</option>
+            <option value="abv_asc" ${sortKey==='abv_asc'?'selected':''}>Trier : ABV ↑</option>
+          </select>
+        </div>
       </div>
     `;
   }
 
-  function homeView(){
+  function homeView(sortKey){
     const filtered = applyFilters(spirits);
-    const list = filtered.map(spiritCardHtml).join('');
+    const sorted = sortList(filtered, sortKey);
+    const list = sorted.map(spiritCardHtml).join('');
+    const { owned, tasted, wish, myAvg } = kpis();
 
     return `
       ${header('home')}
       <div class="container">
-        ${filtersHtml()}
+        <div class="card">
+          <div class="kpiRow">
+            <div class="kpi"><div class="value">${owned}</div><div class="label">Possédés</div></div>
+            <div class="kpi"><div class="value">${tasted}</div><div class="label">Goûtés</div></div>
+            <div class="kpi"><div class="value">${wish}</div><div class="label">Wishlist</div></div>
+            <div class="kpi"><div class="value">${myAvg == null ? '—' : myAvg.toFixed(1)}</div><div class="label">Ma note moyenne</div></div>
+          </div>
+        </div>
+
+        ${filtersHtml(sortKey)}
         <div class="row">
           <div style="flex:1; display:flex; flex-direction:column; gap:10px">
             ${list || `<div class="card"><div class="small">Aucun résultat.</div></div>`}
           </div>
-          <div class="card" style="width:320px; height:190px">
-            <div class="h2">V2</div>
-            <div class="small" style="margin-top:8px; line-height:1.5">
-              • “Ma cave” (possédé / goûté / wishlist)<br/>
-              • Filtres (type, pays, ABV)<br/>
-              • Données sauvegardées sur ton téléphone (localStorage)
+          <div class="card" style="width:320px; height:210px">
+            <div class="h2">Connexion</div>
+            <div class="small" style="margin-top:8px; line-height:1.55">
+              Identifiants démo : <b>demo</b> / <b>liquorne</b><br/>
+              (Prototype : login en dur)
             </div>
             <div style="margin-top:12px" class="small">
-              Ouvre une bouteille pour changer ses statuts.
+              Si tu ne vois pas le logo : rafraîchis fort (cache service worker).
             </div>
           </div>
         </div>
@@ -212,21 +260,22 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     `;
   }
 
-  function cellarSection(title, items){
+  function cellarSection(title, items, sortKey){
+    const sorted = sortList(items, sortKey);
     return `
       <div class="card">
         <div class="toolbar">
           <div class="h2">${esc(title)}</div>
-          <div class="small">${items.length} bouteille(s)</div>
+          <div class="small">${sorted.length} bouteille(s)</div>
         </div>
         <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px">
-          ${items.length ? items.map(spiritCardHtml).join('') : `<div class="small">Rien pour le moment.</div>`}
+          ${sorted.length ? sorted.map(spiritCardHtml).join('') : `<div class="small">Rien pour le moment.</div>`}
         </div>
       </div>
     `;
   }
 
-  function cellarView(){
+  function cellarView(sortKey){
     const inCellar = spirits.filter(s => {
       const st = getStatus(s.id);
       return st.owned || st.tasted || st.wishlist;
@@ -236,6 +285,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const tasted = inCellar.filter(s => getStatus(s.id).tasted);
     const wish = inCellar.filter(s => getStatus(s.id).wishlist);
 
+    const { owned: kOwned, tasted: kTasted, wish: kWish, myAvg } = kpis();
+
     return `
       ${header('cellar')}
       <div class="container">
@@ -243,27 +294,37 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <div class="toolbar">
             <div>
               <div class="h2">Ma cave</div>
-              <div class="small">Tes statuts sont enregistrés sur ce navigateur/téléphone.</div>
+              <div class="small">Tri commun appliqué aux sections • Données enregistrées sur ce téléphone.</div>
             </div>
-            <button class="btnGhost" id="resetCellar">Réinitialiser</button>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+              <select id="sort" style="max-width:260px">
+                <option value="rating_desc" ${sortKey==='rating_desc'?'selected':''}>Trier : note ↓</option>
+                <option value="name_asc" ${sortKey==='name_asc'?'selected':''}>Trier : nom A→Z</option>
+                <option value="abv_desc" ${sortKey==='abv_desc'?'selected':''}>Trier : ABV ↓</option>
+                <option value="abv_asc" ${sortKey==='abv_asc'?'selected':''}>Trier : ABV ↑</option>
+              </select>
+              <button class="btnGhost" id="resetCellar">Réinitialiser</button>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="kpiRow">
+            <div class="kpi"><div class="value">${kOwned}</div><div class="label">Possédés</div></div>
+            <div class="kpi"><div class="value">${kTasted}</div><div class="label">Goûtés</div></div>
+            <div class="kpi"><div class="value">${kWish}</div><div class="label">Wishlist</div></div>
+            <div class="kpi"><div class="value">${myAvg == null ? '—' : myAvg.toFixed(1)}</div><div class="label">Ma note moyenne</div></div>
           </div>
         </div>
 
-        ${cellarSection('✅ Possédés', owned)}
-        ${cellarSection('🍸 Goûtés', tasted)}
-        ${cellarSection('⭐ Wishlist', wish)}
+        ${cellarSection('✅ Possédés', owned, sortKey)}
+        ${cellarSection('🍸 Goûtés', tasted, sortKey)}
+        ${cellarSection('⭐ Wishlist', wish, sortKey)}
       </div>
     `;
   }
 
   function detailView(spirit){
-    const rs = state.reviews
-      .filter(r => r.spiritId === spirit.id)
-      .slice()
-      .sort((a,b)=>b.createdAtIso.localeCompare(a.createdAtIso));
-
+    const rs = state.reviews.filter(r => r.spiritId === spirit.id).slice().sort((a,b)=>b.createdAtIso.localeCompare(a.createdAtIso));
     const avg = rs.length ? (rs.reduce((a,r)=>a+r.rating,0)/rs.length) : null;
-
     const st = getStatus(spirit.id);
 
     const reviewsHtml = rs.length ? rs.map(r => `
@@ -290,6 +351,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="nav">
           <button class="tab ${state.route.prevTab==='cellar' ? 'active' : ''}" data-tab="cellar">Ma cave</button>
           <button class="tab ${state.route.prevTab!=='cellar' ? 'active' : ''}" data-tab="home">Explorer</button>
+          <button class="tab" id="logout">Se déconnecter</button>
         </div>
       </div>
 
@@ -299,9 +361,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
             <div class="title" style="font-size:20px">${esc(spirit.name)}</div>
             <div class="sub">${esc(spirit.brand)} • ${esc(spirit.type)} • ${esc(spirit.country)} • ${esc(spirit.abv)}%</div>
 
-            <div class="notes">
-              ${spirit.notes.map(n => `<div class="chip">${esc(n)}</div>`).join('')}
-            </div>
+            <div class="notes">${spirit.notes.map(n => `<div class="chip">${esc(n)}</div>`).join('')}</div>
 
             <div class="divider"></div>
 
@@ -323,9 +383,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         </div>
 
         <div class="h2">Avis</div>
-        <div style="display:flex; flex-direction:column; gap:10px">
-          ${reviewsHtml}
-        </div>
+        <div style="display:flex; flex-direction:column; gap:10px">${reviewsHtml}</div>
       </div>
     `;
   }
@@ -336,7 +394,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="brand">
           <button class="btnGhost" id="back">← Retour</button>
         </div>
-        <div class="nav"></div>
+        <div class="nav"><button class="tab" id="logout">Se déconnecter</button></div>
       </div>
 
       <div class="container" style="max-width:700px">
@@ -363,7 +421,42 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <textarea class="input" id="text">Nez agréable, bouche équilibrée, finale propre.</textarea>
 
         <button class="btn" id="save">Enregistrer l’avis</button>
-        <div class="small">(V2) Avis sauvegardé dans ton navigateur.</div>
+        <div class="small">(V2.1) Avis sauvegardé dans ton navigateur.</div>
+      </div>
+    `;
+  }
+
+  function loginView(){
+    return `
+      <div class="center">
+        <div class="loginCard">
+          <div class="loginTop">
+            <img class="logoBig" src="./assets/icon-512.png" alt="Liquorne" />
+            <div>
+              <div class="loginTitle">Liquorne</div>
+              <div class="loginSubtitle">Connexion (prototype). Entrée dans l’app si login OK.</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="small">Identifiant</div>
+          <input class="input" id="login" placeholder="demo" autocomplete="username" />
+
+          <div style="height:10px"></div>
+
+          <div class="small">Mot de passe</div>
+          <input class="input" id="pass" type="password" placeholder="liquorne" autocomplete="current-password" />
+
+          <div style="height:12px"></div>
+
+          <button class="btn" id="doLogin">Se connecter</button>
+
+          ${state.loginError ? `<div class="error">${esc(state.loginError)}</div>` : ''}
+
+          <div style="height:12px"></div>
+          <div class="small">Démo : <b>${DEMO_USER}</b> / <b>${DEMO_PASS}</b></div>
+        </div>
       </div>
     `;
   }
@@ -376,6 +469,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         if(tab === 'cellar') navTo({ name:'cellar', spiritId:null, prevTab:'cellar' });
       });
     });
+    const lo = document.getElementById('logout');
+    if(lo) lo.addEventListener('click', logout);
   }
 
   function bindSpiritOpens(prevTab){
@@ -385,9 +480,46 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     });
   }
 
+  let sortHome = 'rating_desc';
+  let sortCellar = 'rating_desc';
+
   function render(){
+    if(!isLoggedIn()){
+      state.route = { name:'login', spiritId:null, prevTab:'home' };
+    } else if(state.route.name === 'login'){
+      state.route = { name:'home', spiritId:null, prevTab:'home' };
+    }
+
+    if(state.route.name === 'login'){
+      app.innerHTML = loginView();
+
+      const login = document.getElementById('login');
+      const pass = document.getElementById('pass');
+      login.value = DEMO_USER;
+      pass.value = DEMO_PASS;
+
+      const doLogin = () => {
+        state.loginError = '';
+        const u = (login.value || '').trim();
+        const p = (pass.value || '').trim();
+        if(u === DEMO_USER && p === DEMO_PASS){
+          state.session = { user: u, createdAtIso: new Date().toISOString() };
+          persist();
+          navTo({ name:'home', spiritId:null, prevTab:'home' });
+        } else {
+          state.loginError = 'Identifiants incorrects.';
+          render();
+        }
+      };
+
+      document.getElementById('doLogin').addEventListener('click', doLogin);
+      pass.addEventListener('keydown', (e) => { if(e.key === 'Enter') doLogin(); });
+      return;
+    }
+
     if(state.route.name === 'home'){
-      app.innerHTML = homeView();
+      if(!ensureAuth()) return;
+      app.innerHTML = homeView(sortHome);
       bindNavTabs();
 
       const q = document.getElementById('q');
@@ -395,23 +527,28 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       const country = document.getElementById('country');
       const abvMin = document.getElementById('abvMin');
       const abvMax = document.getElementById('abvMax');
+      const sort = document.getElementById('sort');
 
       const rerender = () => render();
-
       q.addEventListener('input', (e) => { state.q = e.target.value; rerender(); });
       type.addEventListener('change', (e) => { state.filters.type = e.target.value; rerender(); });
       country.addEventListener('change', (e) => { state.filters.country = e.target.value; rerender(); });
       abvMin.addEventListener('input', (e) => { state.filters.abvMin = e.target.value; rerender(); });
       abvMax.addEventListener('input', (e) => { state.filters.abvMax = e.target.value; rerender(); });
+      sort.addEventListener('change', (e) => { sortHome = e.target.value; rerender(); });
 
       bindSpiritOpens('home');
       return;
     }
 
     if(state.route.name === 'cellar'){
-      app.innerHTML = cellarView();
+      if(!ensureAuth()) return;
+      app.innerHTML = cellarView(sortCellar);
       bindNavTabs();
       bindSpiritOpens('cellar');
+
+      const sort = document.getElementById('sort');
+      sort.addEventListener('change', (e) => { sortCellar = e.target.value; render(); });
 
       document.getElementById('resetCellar').addEventListener('click', () => {
         if(confirm('Réinitialiser tous les statuts de la cave ?')){
@@ -430,6 +567,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     }
 
     if(state.route.name === 'detail'){
+      if(!ensureAuth()) return;
       app.innerHTML = detailView(spirit);
       bindNavTabs();
 
@@ -445,10 +583,13 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         el.addEventListener('click', () => toggleStatus(spirit.id, el.getAttribute('data-status')));
       });
 
+      const lo = document.getElementById('logout');
+      if(lo) lo.addEventListener('click', logout);
       return;
     }
 
     if(state.route.name === 'addReview'){
+      if(!ensureAuth()) return;
       app.innerHTML = addReviewView(spirit);
 
       let rating = 4.0;
@@ -475,21 +616,20 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       );
 
       document.getElementById('save').addEventListener('click', () => {
-        state.reviews = [
-          ...state.reviews,
-          {
-            id: cryptoRandomId(),
-            spiritId: spirit.id,
-            rating,
-            title: (title.value || '').trim(),
-            text: (text.value || '').trim(),
-            createdAtIso: new Date().toISOString(),
-          }
-        ];
+        state.reviews = [...state.reviews, {
+          id: cryptoRandomId(),
+          spiritId: spirit.id,
+          rating,
+          title: (title.value || '').trim(),
+          text: (text.value || '').trim(),
+          createdAtIso: new Date().toISOString(),
+        }];
         persist();
         navTo({ name:'detail', spiritId: spirit.id, prevTab: state.route.prevTab });
       });
 
+      const lo = document.getElementById('logout');
+      if(lo) lo.addEventListener('click', logout);
       return;
     }
   }

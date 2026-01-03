@@ -1,10 +1,11 @@
-const CACHE = 'liquorne-web-v2';
+const CACHE = 'liquorne-web-v21';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './manifest.webmanifest',
+  './assets/icon-64.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/favicon.png',

@@ -48,6 +48,7 @@ a{color:inherit}
   display:flex;
   gap:8px;
   flex-wrap:wrap;
+  align-items:center;
 }
 .tab{
   background:transparent;
@@ -107,9 +108,7 @@ select{
   gap:10px;
 }
 @media (max-width: 900px){
-  .gridFilters{
-    grid-template-columns: 1fr 1fr;
-  }
+  .gridFilters{ grid-template-columns: 1fr 1fr; }
 }
 
 .h2{font-size:18px;font-weight:900;margin:0}
@@ -207,4 +206,70 @@ textarea.input{min-height:120px;resize:vertical}
   background: rgba(179,139,255,.08);
   border-radius:999px;
   padding:4px 8px;
+}
+
+.kpiRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.kpi{
+  flex:1;
+  min-width: 160px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.kpi .value{
+  font-size:22px;
+  font-weight:900;
+}
+.kpi .label{
+  font-size:12px;
+  color:var(--muted);
+}
+
+/* Login */
+.center{
+  min-height: 100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px 16px;
+}
+.loginCard{
+  width: 100%;
+  max-width: 420px;
+  border-radius: 24px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 18px;
+}
+.logoBig{
+  width: 84px;
+  height: 84px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  padding: 10px;
+}
+.loginTop{
+  display:flex;
+  gap:14px;
+  align-items:center;
+}
+.loginTitle{
+  font-size: 22px;
+  font-weight: 950;
+}
+.loginSubtitle{
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.error{
+  color: #ffb0b0;
+  font-size: 12px;
+  margin-top: 10px;
 }

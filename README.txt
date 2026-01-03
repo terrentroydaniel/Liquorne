@@ -1,7 +1,14 @@
-Liquorne — prototype web V2
+Liquorne — prototype web V2.1
 
-- Ma cave : Possédé / Goûté / Wishlist
-- Filtres : Type / Pays / ABV
-- Persistance : localStorage
+Nouveautés :
+- Page login (logo + user/password) et entrée dans l'app si login OK
+- KPI (Possédés/Goûtés/Wishlist + note moyenne)
+- Tri (note, nom, ABV)
+- Persistance localStorage : avis + cave + session
 
-Publication GitHub Pages : index.html doit être à la racine du repo.
+Identifiants démo :
+- demo / liquorne
+
+Si le logo n'apparaît pas après mise à jour GitHub Pages :
+- sur Android Chrome : menu ⋮ → Paramètres → Confidentialité → Effacer données de navigation (cache)
+- ou désinstaller/réinstaller l'icône PWA
