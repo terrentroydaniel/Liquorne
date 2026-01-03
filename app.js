@@ -330,15 +330,12 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const uname = user ? esc(user.username) : '';
     return `
       <div class="topbar">
-        <div class="topbarInner">
-          <div class="brand">
-            <img src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
-            <div class="brandTitle">
-              <div class="h1">Liquorne</div>
-              <div class="sub">V3.4 • prototype</div>
-            </div>
+        <div class="topbarInner topbarInnerCenter">
+          <div class="brandCenter">
+            <div class="brandHalo" aria-hidden="true"></div>
+            <img class="brandLogo" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
           </div>
-          <div class="actions">
+          <div class="actions actionsCenter">
             <button class="pill ${active==='home'?'':'ghost'}" data-tab="home">Explorer</button>
             <button class="pill ${active==='cellar'?'':'ghost'}" data-tab="cellar">Ma cave</button>
             <button class="pill ghost" id="logout">Déco${uname ? ` • ${uname}` : ''}</button>
@@ -417,9 +414,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const list = sorted.map(spiritCardHtml).join('');
     const { owned, tasted, wish, myAvg } = kpis();
     return `
-      <div class="page">
+      <div class="page pageApp">
         ${topbar('home')}
-        <div class="container">
+        <div class="surfaceLight">
+          <div class="container">
           <div class="card">
             <div class="kpis">
               <div class="kpi"><div class="value">${owned}</div><div class="label">Possédés</div></div>
@@ -434,6 +432,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
         ${fab()}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -452,10 +452,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="divider"></div>
         <div class="list">
           ${sorted.length ? sorted.map(spiritCardHtml).join('') : `<div class="small">Rien pour le moment.</div>`}
-        </div>
-      </div>
-    `;
-  }
 
   function cellarView(sortKey){
     const inCellar = state.spirits.filter(s => {
@@ -467,9 +463,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const wish = inCellar.filter(s => getStatus(s.id).wishlist);
     const { owned: kOwned, tasted: kTasted, wish: kWish, myAvg } = kpis();
     return `
-      <div class="page">
+      <div class="page pageApp">
         ${topbar('cellar')}
-        <div class="container">
+        <div class="surfaceLight">
+          <div class="container">
           <div class="card">
             <div class="row">
               <div>
@@ -499,6 +496,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           ${cellarSection('⭐ Wishlist', wish, sortKey)}
         </div>
         ${fab()}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -577,6 +576,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <div class="list">${reviewsHtml}</div>
         </div>
         ${fab()}
+          </div>
+        </div>
       </div>
     `;
   }
@@ -615,10 +616,6 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
             <div style="height:12px"></div>
             <button class="btn" id="save">Enregistrer</button>
           </div>
-        </div>
-      </div>
-    `;
-  }
 
   function addSpiritView(){
     const types = uniqueSorted(state.spirits.map(s => s.type).filter(Boolean).concat(['Whisky','Rhum','Gin','Tequila','Cognac','Vodka','Armagnac','Brandy','Autre']));
