@@ -1,4 +1,4 @@
-const CACHE = 'liquorne-web-v1';
+const CACHE = 'liquorne-web-v2';
 const ASSETS = [
   './',
   './index.html',

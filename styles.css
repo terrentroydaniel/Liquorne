@@ -18,22 +18,59 @@ body{
 }
 a{color:inherit}
 
+.header{
+  max-width:1100px;
+  margin:0 auto;
+  padding:16px 16px 10px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width: 240px;
+}
+.brand img{
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--card);
+  padding:4px;
+}
+.h1{font-size:20px;font-weight:900;margin:0}
+.p{color:var(--muted);margin:3px 0 0;line-height:1.4;font-size:12px}
+
+.nav{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.tab{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:10px 12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.tab.active{
+  color:var(--text);
+  border-color: rgba(179,139,255,.8);
+}
+
 .container{
   max-width:1100px;
   margin:0 auto;
-  padding:16px;
+  padding:0 16px 16px;
   display:flex;
   flex-direction:column;
   gap:12px;
 }
-.header{
-  padding:16px 16px 8px;
-  max-width:1100px;
-  margin:0 auto;
-}
-.h1{font-size:26px;font-weight:800;margin:0}
-.p{color:var(--muted);margin:6px 0 0;line-height:1.4}
-.h2{font-size:18px;font-weight:800;margin:0}
 
 .row{
   display:flex;
@@ -44,7 +81,7 @@ a{color:inherit}
   .row{flex-direction:column}
 }
 
-.input{
+.input, select{
   width:100%;
   padding:12px 14px;
   border-radius:var(--radius);
@@ -53,6 +90,9 @@ a{color:inherit}
   color:var(--text);
   font-size:16px;
 }
+select{
+  appearance:none;
+}
 
 .card{
   background:var(--card);
@@ -60,6 +100,21 @@ a{color:inherit}
   border-radius:var(--radius);
   padding:14px;
 }
+
+.gridFilters{
+  display:grid;
+  grid-template-columns: 1.2fr .8fr .8fr .6fr .6fr;
+  gap:10px;
+}
+@media (max-width: 900px){
+  .gridFilters{
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.h2{font-size:18px;font-weight:900;margin:0}
+.small{font-size:12px;color:var(--muted)}
+.divider{height:1px;background:var(--border);margin:6px 0}
 
 .spiritCard{
   display:flex;
@@ -70,7 +125,7 @@ a{color:inherit}
 }
 .spiritCard:active{opacity:.85}
 
-.title{font-size:16px;font-weight:800;margin:0}
+.title{font-size:16px;font-weight:900;margin:0}
 .sub{font-size:12px;color:var(--muted);margin:6px 0 0}
 .notes{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{
@@ -104,9 +159,11 @@ a{color:inherit}
   border:1px solid var(--border);
   border-radius:16px;
   padding:12px 14px;
-  font-weight:800;
+  font-weight:900;
   cursor:pointer;
 }
+.btnGhost:active{opacity:.85}
+
 .toolbar{
   display:flex;
   justify-content:space-between;
@@ -115,10 +172,39 @@ a{color:inherit}
   flex-wrap:wrap;
 }
 
+.statusRow{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.pill{
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--muted);
+  padding:10px 12px;
+  border-radius:999px;
+  font-weight:900;
+  cursor:pointer;
+}
+.pill.on{
+  color:var(--text);
+  border-color: rgba(179,139,255,.8);
+  box-shadow: 0 0 0 1px rgba(179,139,255,.2) inset;
+}
+
 .reviewCard{display:flex;flex-direction:column;gap:8px}
 .reviewTop{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .reviewTitle{font-weight:900}
 .reviewRating{font-weight:900}
 .reviewDate{font-size:12px;color:var(--muted)}
 textarea.input{min-height:120px;resize:vertical}
-.small{font-size:12px;color:var(--muted)}
+
+.badge{
+  font-size:11px;
+  font-weight:900;
+  color:var(--text);
+  border:1px solid var(--border);
+  background: rgba(179,139,255,.08);
+  border-radius:999px;
+  padding:4px 8px;
+}
