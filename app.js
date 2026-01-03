@@ -335,7 +335,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
             <img src="./assets/licorne-head-256.png" alt="Liquorne"/>
             <div class="brandTitle">
               <div class="h1">Liquorne</div>
-              <div class="sub">V3.2 • prototype</div>
+              <div class="sub">V3.3 • prototype</div>
             </div>
           </div>
           <div class="actions">
@@ -709,22 +709,19 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
 
   // ---- Auth views ----
   function loginView(){
-    return `
-      <div class="authShell">
-        <div class="authPanel">
-          <div class="authGrid">
-            <div class="hero">
-              <div class="heroLogo licorneHead lg">
-                <img src="./assets/licorne-head-512.png" alt="Liquorne" />
-              </div>
-              <div class="heroTitle">Liquorne</div>
-              <div class="heroTag">Ton Vivino des spiritueux : ajoute, note, et organise ta cave.</div>
-              <div class="small">Prototype V3.2 • comptes locaux (non sécurisé)</div>
+  return `
+    <div class="authShellB">
+      <div class="authPanelB">
+        <div class="authGridB">
+          <div class="authB">
+            <div class="badgeWrap" aria-label="Liquorne badge">
+              <img class="badgeLogo" src="./assets/licorne-head-512.png" alt="Liquorne" />
             </div>
 
-            <div class="authBox">
-              <div class="authTitle">Connexion</div>
+            <div class="brandNameB">Liquorne</div>
+            <div class="baselineB">Spirits Explorer</div>
 
+            <div class="authCardB">
               <button class="googleBtn" id="googleLogin">
                 <span class="googleDot"></span>
                 Continuer avec Google (démo)
@@ -738,34 +735,39 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
               <div class="small">Mot de passe</div>
               <input class="input" id="pass" type="password" placeholder="liquorne" autocomplete="current-password" />
 
-              <button class="btn" id="doLogin">Se connecter</button>
+              <button class="btnGold" id="doLogin">Se connecter</button>
               ${state.loginError ? `<div class="error">${esc(state.loginError)}</div>` : ''}
 
               <div class="row">
                 <div class="small">Démo : <b>${DEMO_USER}</b> / <b>${DEMO_PASS}</b></div>
                 <button class="btnGhost" id="goSignup">S’inscrire</button>
               </div>
+
+              <div class="small" style="opacity:.85; margin-top:2px">
+                Prototype : les comptes et données restent sur ce téléphone.
+              </div>
             </div>
           </div>
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
-  function signupView(){
-    return `
-      <div class="authShell">
-        <div class="authPanel">
-          <div class="authGrid">
-            <div class="hero">
-              <div class="heroLogo licorneHead lg">
-                <img src="./assets/licorne-head-512.png" alt="Liquorne" />
-              </div>
-              <div class="heroTitle">Créer un compte</div>
-              <div class="heroTag">Username public + email optionnel. Tout reste sur ton téléphone.</div>
+function signupView(){
+  return `
+    <div class="authShellB">
+      <div class="authPanelB">
+        <div class="authGridB">
+          <div class="authB">
+            <div class="badgeWrap" aria-label="Liquorne badge">
+              <img class="badgeLogo" src="./assets/licorne-head-512.png" alt="Liquorne" />
             </div>
 
-            <div class="authBox">
+            <div class="brandNameB">Créer un compte</div>
+            <div class="baselineB">Spirits Explorer</div>
+
+            <div class="authCardB">
               <div class="authTitle">S’inscrire</div>
 
               <div class="small">Username</div>
@@ -780,7 +782,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
               <div class="small">Confirmer</div>
               <input class="input" id="suPass2" type="password" placeholder="retaper le mot de passe" autocomplete="new-password" />
 
-              <button class="btn" id="doSignup">Créer mon compte</button>
+              <button class="btnGold" id="doSignup">Créer mon compte</button>
               ${state.signupError ? `<div class="error">${esc(state.signupError)}</div>` : ''}
 
               <div class="row">
@@ -791,10 +793,11 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
-    `;
-  }
+    </div>
+  `;
+}
 
-  // ---- Bindings ----
+// ---- Bindings ----
   function bindTopbarTabs(){
     app.querySelectorAll('[data-tab]').forEach(el => {
       el.addEventListener('click', () => {

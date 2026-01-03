@@ -1,4 +1,4 @@
-Liquorne — prototype web V3.2
+Liquorne — prototype web V3.3
 
 Nouveautés :
 - Page "S’inscrire" (compte local)
@@ -11,3 +11,8 @@ Comptes :
 - Google (démo) : simulation
 
 ⚠️ Prototype : comptes/mots de passe/photos stockés en local (localStorage).
+
+V3.3:
+- Écran Login/Signup Version B (médaillon glass + coins adoucis)
+- Accent noir + or (respect des couleurs du logo)
+- Baseline: Spirits Explorer
