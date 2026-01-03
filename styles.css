@@ -260,3 +260,22 @@ select{appearance:none}
 .canvasWrap canvas{width:100%;height:auto;display:block}
 .sliderRow{display:flex;gap:10px;align-items:center;margin-top:10px}
 .sliderRow input[type="range"]{width:100%}
+
+/* --- Liquorne: licorne head widget (premium, transparent) --- */
+.licorneHead{
+  width:48px;
+  height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.licorneHead img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter: drop-shadow(0 10px 22px rgba(0,0,0,.35));
+}
+.licorneHead.lg{ width:220px; height:220px; }
+@media (max-width:900px){
+  .licorneHead.lg{ width:180px; height:180px; }
+}

@@ -332,7 +332,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       <div class="topbar">
         <div class="topbarInner">
           <div class="brand">
-            <img src="./assets/icon-192.png" alt="Liquorne"/>
+            <img src="./assets/licorne-head-256.png" alt="Liquorne"/>
             <div class="brandTitle">
               <div class="h1">Liquorne</div>
               <div class="sub">V3.2 • prototype</div>
@@ -714,8 +714,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="authPanel">
           <div class="authGrid">
             <div class="hero">
-              <div class="heroLogo">
-                <img src="./assets/icon-512.png" alt="Liquorne" />
+              <div class="heroLogo licorneHead lg">
+                <img src="./assets/licorne-head-512.png" alt="Liquorne" />
               </div>
               <div class="heroTitle">Liquorne</div>
               <div class="heroTag">Ton Vivino des spiritueux : ajoute, note, et organise ta cave.</div>
@@ -758,8 +758,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="authPanel">
           <div class="authGrid">
             <div class="hero">
-              <div class="heroLogo">
-                <img src="./assets/icon-512.png" alt="Liquorne" />
+              <div class="heroLogo licorneHead lg">
+                <img src="./assets/licorne-head-512.png" alt="Liquorne" />
               </div>
               <div class="heroTitle">Créer un compte</div>
               <div class="heroTag">Username public + email optionnel. Tout reste sur ton téléphone.</div>
