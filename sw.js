@@ -1,4 +1,4 @@
-const CACHE = 'liquorne-web-v3-2';
+const CACHE = 'liquorne-web-v3-3-3';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/favicon.png',
+  './assets/licorne-head-512-v333.png',
 ];
 
 self.addEventListener('install', (event) => {

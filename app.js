@@ -332,10 +332,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       <div class="topbar">
         <div class="topbarInner">
           <div class="brand">
-            <img src="./assets/licorne-head-256.png" alt="Liquorne"/>
+            <img src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
             <div class="brandTitle">
               <div class="h1">Liquorne</div>
-              <div class="sub">V3.3.2 • prototype</div>
+              <div class="sub">V3.4 • prototype</div>
             </div>
           </div>
           <div class="actions">
@@ -715,7 +715,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         <div class="authGridB">
           <div class="authB">
             <div class="badgeWrap" aria-label="Liquorne badge">
-              <img class="badgeLogo" src="./assets/licorne-head-512.png" alt="Liquorne" />
+              <img class="badgeLogo" src="./assets/logo-diamond-512-v34.png" alt="Liquorne" />
             </div>
 
             <div class="brandNameB">Liquorne</div>
@@ -761,7 +761,7 @@ function signupView(){
         <div class="authGridB">
           <div class="authB">
             <div class="badgeWrap" aria-label="Liquorne badge">
-              <img class="badgeLogo" src="./assets/licorne-head-512.png" alt="Liquorne" />
+              <img class="badgeLogo" src="./assets/logo-diamond-512-v34.png" alt="Liquorne" />
             </div>
 
             <div class="brandNameB">Créer un compte</div>
