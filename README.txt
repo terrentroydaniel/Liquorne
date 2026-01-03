@@ -1,14 +1,13 @@
-Liquorne — prototype web V3
+Liquorne — prototype web V3.2
 
-Changements demandés :
-- Suppression de l’option “appareil photo” (caméra) : import uniquement via galerie.
-- Nouvelle page de connexion : fond bleu sombre, gros logo (zone haute ~3/4), puis options :
-  - Continuer avec Google (simulation)
-  - ou login / mot de passe (démo)
+Nouveautés :
+- Page "S’inscrire" (compte local)
+- Refonte du design global
+- Bouton "+" fixe (FAB) en bas à droite pour ajouter rapidement
+- Photo modifiable : changer / retirer / éditer (recadrage carré + zoom + déplacement + rotation)
 
-Identifiants :
+Comptes :
 - demo / liquorne
-- Google : clique sur le bouton → connecte "google@demo"
+- Google (démo) : simulation
 
-Note :
-- Les photos sont stockées en local (localStorage) et réduites (max ~1024px) pour limiter la taille.
+⚠️ Prototype : comptes/mots de passe/photos stockés en local (localStorage).
