@@ -329,7 +329,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const user = getUser();
     const uname = user ? esc(user.username) : '';
     return `
-      <div class="topbar">
+      <div class="topbar"><button class="menuBtn" id="menuBtn" aria-label="Menu">☰</button>
         <div class="topbarInner">
           <div class="brand">
             <img src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
@@ -808,7 +808,7 @@ function signupView(){
     });
     document.getElementById('logout')?.addEventListener('click', logout);
     document.getElementById('fabAdd')?.addEventListener('click', () => navTo({ name:'add', spiritId:null, prevTab: state.route.name === 'cellar' ? 'cellar' : 'home' }));
-  }
+    }
   function bindSpiritOpens(prevTab){
     app.querySelectorAll('[data-open]').forEach(el => {
       el.addEventListener('click', () => navTo({ name:'detail', spiritId: el.getAttribute('data-open'), prevTab }));
@@ -918,6 +918,7 @@ function signupView(){
       if(!ensureAuth()) return;
       app.innerHTML = homeView(sortHome) + editorModal();
       bindTopbarTabs();
+      bindMenu();
 
       const q = document.getElementById('q');
       const type = document.getElementById('type');
@@ -943,6 +944,7 @@ function signupView(){
       if(!ensureAuth()) return;
       app.innerHTML = cellarView(sortCellar) + editorModal();
       bindTopbarTabs();
+      bindMenu();
       bindSpiritOpens('cellar');
 
       document.getElementById('sort')?.addEventListener('change', (e) => { sortCellar = e.target.value; render(); });
@@ -1036,6 +1038,7 @@ function signupView(){
       if(!ensureAuth()) return;
       app.innerHTML = detailView(spirit) + editorModal();
       bindTopbarTabs();
+      bindMenu();
 
       document.getElementById('back').addEventListener('click', () => {
         navTo({ name: state.route.prevTab === 'cellar' ? 'cellar' : 'home', spiritId:null, prevTab: state.route.prevTab });
@@ -1093,4 +1096,15 @@ function signupView(){
   }
 
   render();
-})();
+})();function bindMenu(){
+  const btn = document.getElementById('menuBtn');
+  const ov = document.getElementById('menuOverlay');
+  if(btn && ov){
+    btn.onclick = () => { ov.style.display = 'block'; ov.setAttribute('aria-hidden','false'); };
+    ov.onclick = (e) => { if(e.target === ov){ ov.style.display = 'none'; ov.setAttribute('aria-hidden','true'); } };
+  }
+  document.getElementById('menuLogout')?.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+  document.getElementById('menuProfile')?.addEventListener('click', (e) => { e.preventDefault(); alert('Profil (à venir)'); });
+  document.getElementById('menuSettings')?.addEventListener('click', (e) => { e.preventDefault(); alert('Paramètres (à venir)'); });
+  document.getElementById('menuHelp')?.addEventListener('click', (e) => { e.preventDefault(); alert('Aide (à venir)'); });
+}

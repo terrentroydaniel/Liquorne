@@ -499,3 +499,85 @@ select{appearance:none}
   .topbarInner{ padding: 10px 14px 10px; gap: 8px; }
   .actions{ gap: 8px; }
 }
+
+
+/* === V3.6.1 UX fixes (safe) === */
+
+/* FAB: gold & centered */
+.fab{
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  bottom: 18px !important;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 50% !important;
+  background: #D9B25F !important;
+  color: #0B1220 !important;
+  border: none !important;
+  font-size: 34px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 14px 30px rgba(217,178,95,.45) !important;
+  z-index: 1200 !important;
+}
+.fab:active{ transform: translateX(-50%) scale(.96) !important; }
+
+/* Hide topbar logout pill (moved to menu) */
+#logout{ display:none !important; }
+
+/* Sticky header truly on top */
+.topbar{
+  position: sticky !important;
+  top: 0;
+  z-index: 1500 !important;
+}
+
+/* Prevent content from sliding under header */
+.page{ padding-top: 10px; }
+
+/* Hamburger */
+.menuBtn{
+  position:absolute;
+  left:14px;
+  top:14px;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+}
+
+/* Side menu overlay */
+.menuOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 2000;
+  display:none;
+}
+.menuPanel{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width: min(320px, 78vw);
+  background: #0B1220;
+  color:#fff;
+  padding: 22px 18px;
+  box-shadow: 12px 0 28px rgba(0,0,0,.55);
+}
+.menuTitle{ font-weight:700; margin: 4px 0 16px; }
+.menuItem{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  color:#fff;
+  text-decoration:none;
+}
+.menuItem:hover{ background: rgba(255,255,255,.06); }
+.menuItem.danger{ color:#ffb4b4; }
