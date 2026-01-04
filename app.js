@@ -183,6 +183,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           <div class="count">${r.count} avis</div>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -329,7 +330,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const user = getUser();
     const uname = user ? esc(user.username) : '';
     return `
-      <div class="topbar">
+      <div class="topbar"><div class="hamburger" onclick="toggleMenu()">☰</div>
         <div class="topbarInner">
           <div class="brand">
             <img src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
@@ -345,6 +346,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -376,6 +378,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -408,6 +411,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </select>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -435,6 +439,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         </div>
         ${fab()}
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -454,6 +459,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           ${sorted.length ? sorted.map(spiritCardHtml).join('') : `<div class="small">Rien pour le moment.</div>`}
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -500,6 +506,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         </div>
         ${fab()}
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -578,6 +585,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         </div>
         ${fab()}
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -617,6 +625,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -704,6 +713,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
           </div>
         </div>
       </div>
+      <button class="fab" id="addBtn">+</button>
     `;
   }
 
@@ -1094,3 +1104,24 @@ function signupView(){
 
   render();
 })();
+function addView(){
+  return `
+    ${topbar('')}
+    <div class="page">
+      <div class="container">
+        <button onclick="goHome()">← Retour</button>
+        <h2>Ajouter un spiritueux</h2>
+        <p>(Écran de saisie à venir)</p>
+      </div>
+    </div>
+  `;
+}
+function goHome(){ render('home'); }
+
+function toggleMenu(){
+  const m=document.getElementById('sideMenu');
+  if(!m) return;
+  m.style.display = (m.style.display==='block')?'none':'block';
+}
+
+<div id="sideMenu" class="sideMenu" style="display:none"><a href="#">Profil</a><a href="#">Paramètres</a><a href="#">Aide</a><a href="#" class="danger" onclick="logout()">Déconnexion</a></div>

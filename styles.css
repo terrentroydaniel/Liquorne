@@ -499,3 +499,64 @@ select{appearance:none}
   .topbarInner{ padding: 10px 14px 10px; gap: 8px; }
   .actions{ gap: 8px; }
 }
+
+
+/* === V3.6 UX fixes === */
+
+/* Sticky header fully opaque */
+.topbar{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(180deg, #0B1220, #0E1630);
+}
+
+/* Ensure content never scrolls under header */
+.page{ padding-top: 12px; }
+
+/* Floating Action Button centered */
+.fab{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #D9B25F;
+  color: #0B1220;
+  border: none;
+  font-size: 34px;
+  font-weight: 600;
+  box-shadow: 0 14px 30px rgba(217,178,95,.45);
+  z-index: 1200;
+}
+.fab:active{ transform: translateX(-50%) scale(.96); }
+
+/* Hamburger menu */
+.hamburger{
+  position:absolute;
+  left:14px;
+  top:14px;
+  font-size:26px;
+  cursor:pointer;
+}
+
+.sideMenu{
+  position: fixed;
+  inset: 0 40% 0 0;
+  background:#0B1220;
+  color:#fff;
+  padding:24px;
+  z-index:1300;
+  box-shadow: 8px 0 24px rgba(0,0,0,.45);
+}
+.sideMenu a{
+  display:block;
+  padding:14px 0;
+  font-size:16px;
+  color:#fff;
+  text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sideMenu a.danger{ color:#ffb4b4; }
