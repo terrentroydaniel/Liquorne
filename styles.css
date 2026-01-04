@@ -743,3 +743,77 @@ select{appearance:none}
 .topbar{ z-index: 2000; }
 .menuBackdrop{ z-index: 2100; }
 .sideMenu{ z-index: 2200; }
+
+
+/* ===== Liquorne V3.7 (light content + dark header) ===== */
+body{
+  background:#ffffff !important;
+  color:#0b1220 !important;
+}
+.page.light{
+  background:#ffffff;
+}
+.topbar{
+  backdrop-filter:none !important;
+  background:#071022 !important;
+  border-bottom:1px solid rgba(0,0,0,.08) !important;
+}
+.brandText{ color:#F2F6FF !important; }
+.pill{ border-color: rgba(255,255,255,.18) !important; }
+.pill.ghost{ background: rgba(255,255,255,.08) !important; color:#F2F6FF !important; }
+.container{
+  color:#0b1220;
+}
+.card{
+  background:#F3F5F8 !important;
+  border:1px solid #E4E7EE !important;
+  box-shadow: 0 12px 28px rgba(5,10,20,.10) !important;
+}
+.small, .muted { color:#4b5563 !important; }
+input, select, textarea{
+  background:#ffffff !important;
+  color:#0b1220 !important;
+  border:1px solid #D6DBE6 !important;
+}
+input::placeholder{ color:#6b7280 !important; }
+.hr{ border-color:#E6E9F0 !important; }
+
+/* FAB centered, gold */
+.fab{
+  left:50% !important;
+  right:auto !important;
+  transform: translateX(-50%) !important;
+  background: linear-gradient(180deg, var(--gold2) 0%, var(--gold) 100%) !important;
+  color:#0b1220 !important;
+  box-shadow: 0 18px 36px rgba(5,10,20,.22) !important;
+}
+
+/* Back button in header */
+.topbarBack .backBtn{
+  width:44px;height:44px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color:#F2F6FF;
+  font-size:20px;
+}
+.topHint{
+  color: rgba(242,246,255,.78);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+/* Side menu readability */
+.sideMenu{
+  background:#071022 !important;
+}
+.sideItem{
+  color:#F2F6FF !important;
+}
+.sideItem.danger{
+  color: var(--gold2) !important;
+  font-weight:800;
+}
+.sideDivider{
+  border-color: rgba(255,255,255,.10) !important;
+}

@@ -85,7 +85,13 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     }
     return true;
   }
-  function navTo(route){ state.route = route; render(); }
+  
+function goBack(){
+  const prev = (state.route && state.route.prevTab) ? state.route.prevTab : 'home';
+  navTo({ name: prev });
+}
+
+function navTo(route){ state.route = route; render(); }
   function logout(){ state.session = null; persist(); navTo({ name:'login', spiritId:null, prevTab:'home' }); }
 
   function computeRating(spiritId){
@@ -330,13 +336,15 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     <div class="topbar">
       <div class="topbarInner">
         <button class="hamburgerBtn" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+
         <div class="brand brandCenter">
           <img class="brandLogoSmall" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
           <div class="brandText">Liquorne</div>
         </div>
+
         <div class="actions actionsCenter">
-          <button class="pill ${active==='home'?'':'ghost'}" onclick="render('home')">Explorer</button>
-          <button class="pill ${active==='cellar'?'':'ghost'}" onclick="render('cellar')">Ma cave</button>
+          <button class="pill ${active==='home'?'':'ghost'}" onclick="navTo({name:'home'})">Explorer</button>
+          <button class="pill ${active==='cellar'?'':'ghost'}" onclick="navTo({name:'cellar'})">Ma cave</button>
         </div>
       </div>
     </div>
@@ -344,14 +352,23 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     <div class="menuBackdrop" id="menuBackdrop" style="display:none" onclick="closeMenu()"></div>
     <div class="sideMenu" id="sideMenu" style="display:none" data-open="0" role="dialog" aria-modal="true">
       <div class="sideHeader">
-        <div class="sideTitle">Menu</div>
+        <div>
+          <div class="sideTitle">Profil</div>
+          <div class="sideSub">Compte local (démo)</div>
+        </div>
         <button class="sideClose" id="menuCloseBtn" onclick="closeMenu()" aria-label="Fermer">✕</button>
       </div>
-      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Profil</a>
-      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Paramètres</a>
-      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Aide</a>
+
+      <a href="#" class="sideItem" onclick="closeMenu(); navTo({name:'cellar'}); return false;">🍾 Ma cave</a>
+      <a href="#" class="sideItem" onclick="closeMenu(); alert('Wishlist (démo)'); return false;">⭐ Wishlist</a>
+      <a href="#" class="sideItem" onclick="closeMenu(); alert('Statistiques (démo)'); return false;">📊 Statistiques</a>
+
       <div class="sideDivider"></div>
-      <a href="#" class="sideItem danger" onclick="closeMenu(); logout(); return false;">Déconnexion</a>
+
+      <a href="#" class="sideItem" onclick="closeMenu(); alert('Paramètres (démo)'); return false;">⚙️ Paramètres</a>
+
+      <div class="sideDivider"></div>
+      <a href="#" class="sideItem danger" onclick="closeMenu(); logout(); return false;">🚪 Déconnexion</a>
     </div>
   `;
 }
@@ -425,8 +442,8 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const list = sorted.map(spiritCardHtml).join('');
     const { owned, tasted, wish, myAvg } = kpis();
     return `
-      <div class="page">
-        ${topbar('home')}
+      <div class="page light">
+        ${topbarBack('Ajouter')}
         <div class="container">
           <div class="card">
             <div class="kpis">
@@ -475,7 +492,7 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const wish = inCellar.filter(s => getStatus(s.id).wishlist);
     const { owned: kOwned, tasted: kTasted, wish: kWish, myAvg } = kpis();
     return `
-      <div class="page">
+      <div class="page light">
         ${topbar('cellar')}
         <div class="container">
           <div class="card">
@@ -533,12 +550,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     const hasPhoto = !!spirit.imageDataUrl;
 
     return `
-      <div class="page">
+      <div class="page light">
         ${topbar(state.route.prevTab === 'cellar' ? 'cellar' : 'home')}
         <div class="container">
-          <button class="btnGhost" id="back">← Retour</button>
-
-          <div class="card" style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap">
+<div class="card" style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap">
             ${image}
             <div style="flex:1; min-width:240px; display:flex; flex-direction:column; gap:6px">
               <div class="title" style="font-size:20px">${esc(spirit.name)}</div>
@@ -591,12 +606,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
 
   function addReviewView(spirit){
     return `
-      <div class="page">
+      <div class="page light">
         ${topbar('home')}
         <div class="container" style="max-width:720px">
-          <button class="btnGhost" id="back">← Retour</button>
-
-          <div class="card">
+<div class="card">
             <div class="h2">Ajouter un avis</div>
             <div class="small">${esc(spirit.name)} — ${esc(spirit.brand)}</div>
           </div>
@@ -637,12 +650,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
       : `<div class="thumb" style="width:120px;height:120px;border-radius:24px"><div class="ph">PHOTO</div></div>`;
 
     return `
-      <div class="page">
+      <div class="page light">
         ${topbar('home')}
         <div class="container" style="max-width:820px">
-          <button class="btnGhost" id="back">← Retour</button>
-
-          <div class="card">
+<div class="card">
             <div class="row">
               <div>
                 <div class="h2">Ajouter un spiritueux</div>
@@ -972,8 +983,6 @@ function signupView(){
       if(!ensureAuth()) return;
       app.innerHTML = addSpiritView() + editorModal();
 
-      document.getElementById('back').addEventListener('click', () => {
-        navTo({ name: state.route.prevTab === 'cellar' ? 'cellar' : 'home', spiritId:null, prevTab: state.route.prevTab });
       });
 
       document.getElementById('clearDraft')?.addEventListener('click', () => {
@@ -1050,8 +1059,6 @@ function signupView(){
       bindTopbarTabs();
       bindMenu();
 
-      document.getElementById('back').addEventListener('click', () => {
-        navTo({ name: state.route.prevTab === 'cellar' ? 'cellar' : 'home', spiritId:null, prevTab: state.route.prevTab });
       });
 
       document.getElementById('addReview')?.addEventListener('click', () => navTo({ name:'addReview', spiritId: spirit.id, prevTab: state.route.prevTab }));
@@ -1117,6 +1124,27 @@ function signupView(){
   document.getElementById('menuProfile')?.addEventListener('click', (e) => { e.preventDefault(); alert('Profil (à venir)'); });
   document.getElementById('menuSettings')?.addEventListener('click', (e) => { e.preventDefault(); alert('Paramètres (à venir)'); });
   document.getElementById('menuHelp')?.addEventListener('click', (e) => { e.preventDefault(); alert('Aide (à venir)'); });
+
+
+function topbarBack(title){
+  return `
+    <div class="topbar topbarBack">
+      <div class="topbarInner">
+        <button class="backBtn" id="navBack" onclick="goBack()" aria-label="Retour">←</button>
+
+        <div class="brand brandCenter">
+          <img class="brandLogoSmall" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
+          <div class="brandText">${title || 'Liquorne'}</div>
+        </div>
+
+        <div class="actions actionsCenter">
+          <span class="topHint">Spirits Explorer</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 }
 
 function toggleMenu(){
