@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#071022" />
+  <title>Liquorne — prototype web V3.7.2</title>
+    <link rel="apple-touch-icon" href="./assets/apple-touch-icon.png" />
+  <link rel="icon" href="./assets/favicon.png" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app" style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#d7b45a;font-family:system-ui;background:#071022">Chargement…</div>
+  
+<script>
+(function(){
+  function show(msg){
+    var el=document.getElementById('app');
+    if(!el) return;
+    el.style.minHeight='100vh';
+    el.style.background='#071022';
+    el.style.color='#fff';
+    el.style.padding='16px';
+    el.style.display='block';
+    el.innerHTML='<h2 style="margin:0 0 8px 0;color:#d7b45a;font-family:system-ui">Liquorne — erreur</h2>'
+      +'<pre style="white-space:pre-wrap;background:rgba(255,255,255,.06);padding:12px;border-radius:12px;line-height:1.35;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace;">'
+      + msg.replace(/[&<>]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c];})
+      +'</pre>';
+  }
+  window.addEventListener('error', function(ev){
+    if(ev && ev.error){ show(String(ev.error.stack||ev.error.message||ev.error)); }
+    else if(ev && ev.message){ show(String(ev.message)); }
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    var r = ev && ev.reason;
+    show(String(r && (r.stack||r.message||r)) || 'Unhandled promise rejection');
+  });
+})();
+</script>
+
+  <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("./sw.js?v=3.7.2");}</script>
+  <script src="./app.js"></script>
+</body>
+</html>
