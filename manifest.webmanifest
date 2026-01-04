@@ -1,7 +1,7 @@
 {
   "name": "Liquorne",
   "short_name": "Liquorne",
-  "start_url": "./index.html",
+  "start_url": "/Liquorne/",
   "display": "standalone",
   "background_color": "#071022",
   "theme_color": "#071022",
@@ -18,5 +18,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "scope": "/Liquorne/"
 }

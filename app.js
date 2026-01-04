@@ -1,5 +1,5 @@
 window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Distilling", "type": "Whisky", "country": "Écosse", "abv": 40, "notes": ["miel", "vanille", "fruits secs"], "imageDataUrl": ""}, {"id": "s2", "name": "Caña Dorada", "brand": "Casa del Sol", "type": "Rhum", "country": "Martinique", "abv": 50, "notes": ["canne", "agrumes", "poivre"], "imageDataUrl": ""}, {"id": "s3", "name": "Juniper No. 3", "brand": "North Bay", "type": "Gin", "country": "France", "abv": 43, "notes": ["genièvre", "citron", "herbes"], "imageDataUrl": ""}, {"id": "s4", "name": "Reposado Azul", "brand": "Agave Real", "type": "Tequila", "country": "Mexique", "abv": 40, "notes": ["agave", "caramel", "boisé"], "imageDataUrl": ""}, {"id": "s5", "name": "Cognac VSOP Réserve", "brand": "Maison Lune", "type": "Cognac", "country": "France", "abv": 40, "notes": ["abricot", "chêne", "épices"], "imageDataUrl": ""}, {"id": "s6", "name": "Vodka Pure Grain", "brand": "Nordik", "type": "Vodka", "country": "Pologne", "abv": 40, "notes": ["céréales", "poivre blanc", "net"], "imageDataUrl": ""}];
-(() => {
+(() => { try {
   const app = document.getElementById('app');
 
   const K = {
@@ -1113,7 +1113,22 @@ function signupView(){
   }
 
   render();
-})();function bindMenu(){
+
+} catch (e) {
+  const a = document.getElementById('app');
+  if (a) {
+    a.innerHTML = `
+      <div style="padding:16px;font-family:system-ui;color:#fff;background:#071022;min-height:100vh">
+        <h2 style="margin:0 0 8px 0;color:#d7b45a">Liquorne — erreur de chargement</h2>
+        <div style="opacity:.9;margin-bottom:12px">Une erreur JS empêche l'app de s'afficher. Copie/colle le message ci-dessous.</div>
+        <pre style="white-space:pre-wrap;background:rgba(255,255,255,.06);padding:12px;border-radius:12px;line-height:1.35">${String(e && (e.stack || e.message || e))}</pre>
+        <div style="opacity:.8;margin-top:12px">Astuce: essaie aussi d'ouvrir l'URL avec <b>?nocache=1</b>.</div>
+      </div>`;
+  }
+  try { console.error(e); } catch(_) {}
+}
+
+})();;function bindMenu(){
   const btn = document.getElementById('menuBtn');
   const ov = document.getElementById('menuOverlay');
   if(btn && ov){
