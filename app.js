@@ -329,29 +329,29 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
   return `
     <div class="topbar">
       <div class="topbarInner">
-        <button class="hamburgerBtn" id="hamburgerBtn" aria-label="Menu">☰</button>
-        <div class="brand" style="margin: 0 auto; gap: 10px;">
+        <button class="hamburgerBtn" id="hamburgerBtn" onclick="toggleMenu()" aria-label="Menu">☰</button>
+        <div class="brand brandCenter">
           <img class="brandLogoSmall" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
           <div class="brandText">Liquorne</div>
         </div>
-        <div class="actions" style="justify-content:center;">
-          <button class="pill ${active==='home'?'':'ghost'}" data-tab="home">Explorer</button>
-          <button class="pill ${active==='cellar'?'':'ghost'}" data-tab="cellar">Ma cave</button>
+        <div class="actions actionsCenter">
+          <button class="pill ${active==='home'?'':'ghost'}" onclick="render('home')">Explorer</button>
+          <button class="pill ${active==='cellar'?'':'ghost'}" onclick="render('cellar')">Ma cave</button>
         </div>
       </div>
     </div>
 
-    <div class="menuBackdrop" id="menuBackdrop" style="display:none"></div>
+    <div class="menuBackdrop" id="menuBackdrop" style="display:none" onclick="closeMenu()"></div>
     <div class="sideMenu" id="sideMenu" style="display:none" data-open="0" role="dialog" aria-modal="true">
       <div class="sideHeader">
         <div class="sideTitle">Menu</div>
-        <button class="sideClose" id="menuCloseBtn" aria-label="Fermer">✕</button>
+        <button class="sideClose" id="menuCloseBtn" onclick="closeMenu()" aria-label="Fermer">✕</button>
       </div>
-      <a href="#" class="sideItem" data-side="profile">Profil</a>
-      <a href="#" class="sideItem" data-side="settings">Paramètres</a>
-      <a href="#" class="sideItem" data-side="help">Aide</a>
-      <div style="height:14px"></div>
-      <a href="#" class="sideItem danger" id="logout">Déconnexion</a>
+      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Profil</a>
+      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Paramètres</a>
+      <a href="#" class="sideItem" onclick="closeMenu(); return false;">Aide</a>
+      <div class="sideDivider"></div>
+      <a href="#" class="sideItem danger" onclick="closeMenu(); logout(); return false;">Déconnexion</a>
     </div>
   `;
 }
@@ -1138,17 +1138,21 @@ function closeMenu(){
 function addView(){
   return `
     ${topbar('')}
-    <div class="page">
+    <div class="page lightPage">
       <div class="container">
-        <div class="row" style="justify-content:flex-start; gap:10px; margin: 8px 0 10px;">
-          <button class="btnGhost" id="backBtn">← Retour</button>
+        <div class="addHeaderRow">
+          <button class="btnBack" onclick="render('home')" aria-label="Retour">← Retour</button>
         </div>
-        <div class="card">
-          <div class="authTitle">Ajouter un spiritueux</div>
-          <div class="small">Saisie rapide (V3.6):</div>
-          <input class="input" id="addName" placeholder="Nom (ex: Diplomatico Reserva)" />
-          <textarea class="input" id="addNote" placeholder="Ton avis..." style="min-height:110px; padding-top:10px"></textarea>
-          <button class="btnGold" id="saveAdd">Enregistrer</button>
+
+        <div class="card lightCard">
+          <div class="authTitle darkText">Ajouter un spiritueux</div>
+          <div class="small darkMuted">Import galerie + recadrage intégré (démo)</div>
+
+          <input class="input lightInput" id="addName" placeholder="Nom (ex: Talisker 10)" />
+          <input class="input lightInput" id="addBrand" placeholder="Marque / Distillerie (ex: Talisker)" />
+          <textarea class="input lightInput" id="addNote" placeholder="Ton avis (optionnel)..." style="min-height:110px; padding-top:10px"></textarea>
+
+          <button class="btnGold" onclick="render('home')">Enregistrer</button>
         </div>
       </div>
     </div>

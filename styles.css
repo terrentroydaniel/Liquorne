@@ -680,3 +680,66 @@ select{appearance:none}
 }
 
 .page .container{ padding-bottom: 88px; } /* avoid FAB overlap */
+
+
+/* === V3.6.4 Lisibilité + menu + retour === */
+
+/* Light content area (option 1) */
+.lightPage{
+  background: #F6F0E3;
+  color: #0B1220;
+  min-height: calc(100vh - 120px);
+}
+.lightCard{
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(10,17,32,.10);
+}
+.darkText{ color:#0B1220 !important; }
+.darkMuted{ color: rgba(11,18,32,.70) !important; }
+
+.lightInput{
+  background: rgba(255,255,255,.88) !important;
+  color: #0B1220 !important;
+  border: 1px solid rgba(10,17,32,.14) !important;
+}
+.lightInput::placeholder{ color: rgba(11,18,32,.45) !important; }
+
+/* Center brand + tabs in header */
+.brandCenter{ margin: 0 auto; }
+.actionsCenter{ justify-content:center; }
+
+/* Fullscreen menu readability */
+.sideMenu{
+  width: 100vw !important;
+  background: #0A1120 !important;
+}
+.sideItem{
+  color: rgba(255,255,255,.94) !important;
+  font-size: 18px !important;
+}
+.sideDivider{
+  height: 1px;
+  background: rgba(255,255,255,.10);
+  margin: 16px 0;
+}
+.sideItem.danger{
+  color: #D9B25F !important;
+  font-weight: 800 !important;
+}
+
+/* Visible back button */
+.addHeaderRow{ margin: 10px 0 14px; }
+.btnBack{
+  background: #0A1120;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.18);
+  padding: 12px 14px;
+  border-radius: 16px;
+  box-shadow: 0 10px 18px rgba(0,0,0,.18);
+}
+.btnBack:active{ transform: scale(.98); }
+
+/* Ensure header stays above */
+.topbar{ z-index: 2000; }
+.menuBackdrop{ z-index: 2100; }
+.sideMenu{ z-index: 2200; }
