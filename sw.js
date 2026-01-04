@@ -1,15 +1,16 @@
-const CACHE = 'liquorne-v3.6.4';
+const CACHE = 'liquorne-v3.7.1';
 const ASSETS = [
-  './',
-  './index.html',
-  './styles.css',
-  './app.js',
-  './manifest.webmanifest',
-  './assets/icon-64.png',
-  './assets/icon-192.png',
-  './assets/icon-512.png',
-  './assets/favicon.png',
-  './assets/licorne-head-512-v333.png',
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./app.js",
+  "./manifest.webmanifest",
+  "./assets/icon-64.png",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
+  "./assets/favicon.png",
+  "./assets/apple-touch-icon.png",
+  "./assets/logo-diamond-512-v34.png"
 ];
 
 self.addEventListener('install', (event) => {
