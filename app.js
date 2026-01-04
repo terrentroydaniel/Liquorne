@@ -983,7 +983,6 @@ function signupView(){
       if(!ensureAuth()) return;
       app.innerHTML = addSpiritView() + editorModal();
 
-      });
 
       document.getElementById('clearDraft')?.addEventListener('click', () => {
         if(confirm('Réinitialiser le formulaire ?')){
@@ -1059,7 +1058,6 @@ function signupView(){
       bindTopbarTabs();
       bindMenu();
 
-      });
 
       document.getElementById('addReview')?.addEventListener('click', () => navTo({ name:'addReview', spiritId: spirit.id, prevTab: state.route.prevTab }));
 
