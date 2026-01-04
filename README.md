@@ -1,4 +1,4 @@
-# Liquorne — prototype web (V3.7.2)
+# Liquorne — prototype web (V3.8.0)
 
 Prototype **PWA** (installable) de *Liquorne* : ton « Vivino des spiritueux ».
 
@@ -63,8 +63,14 @@ Essaye dans l’ordre :
 
 ## Notes de version
 
-### V3.7.2
+### V3.8.0
 - Ajout d’un **fallback** “Chargement…” pour éviter une page vide
 - Gestion d’erreur au démarrage (écran lisible sans console)
 - Ajustements PWA (cache bump + compatibilité GitHub Pages `/Liquorne/`)
 
+
+
+## Nouveautés V3.8.0
+- ✅ Modification d’un spiritueux ajouté (nom, marque, type, pays, ABV, notes, photo)
+- ✅ Suppression d’un spiritueux (nettoyage cave + avis associés)
+- ✅ Bouton + centré et or (style premium)
