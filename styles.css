@@ -581,3 +581,65 @@ select{appearance:none}
 }
 .menuItem:hover{ background: rgba(255,255,255,.06); }
 .menuItem.danger{ color:#ffb4b4; }
+
+/* --- V3.6.2 hamburger + menu --- */
+.topbarInner{ position:relative; }
+.hamburgerBtn{
+  position:absolute;
+  left:12px;
+  top:10px;
+  width:44px;height:44px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04);
+  color:#fff;
+  font-size:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.brandLogoSmall{ width:34px; height:34px; object-fit:contain; }
+.menuBackdrop{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.40);
+  z-index:1290;
+}
+.sideMenu{
+  position:fixed;
+  top:0; left:0; bottom:0;
+  width:min(320px, 82vw);
+  background: #0B1220;
+  color:#fff;
+  z-index:1300;
+  padding: 18px 16px;
+  box-shadow: 8px 0 28px rgba(0,0,0,.55);
+  border-right:1px solid rgba(255,255,255,.10);
+}
+.sideHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.sideTitle{ font-weight:900; letter-spacing:.2px; }
+.sideClose{
+  width:40px;height:40px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  font-size:18px;
+  cursor:pointer;
+}
+.sideItem{
+  display:block;
+  padding: 14px 4px;
+  color:#fff;
+  text-decoration:none;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.sideItem.danger{ color: #ffb4b4; }

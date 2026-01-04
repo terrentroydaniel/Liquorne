@@ -326,27 +326,35 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     return `<button class="fab" id="fabAdd" aria-label="Ajouter">+</button>`;
   }
   function topbar(active){
-    const user = getUser();
-    const uname = user ? esc(user.username) : '';
-    return `
-      <div class="topbar"><button class="menuBtn" id="menuBtn" aria-label="Menu">☰</button>
-        <div class="topbarInner">
-          <div class="brand">
-            <img src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
-            <div class="brandTitle">
-              <div class="h1">Liquorne</div>
-              <div class="sub">V3.5.1 • prototype</div>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="pill ${active==='home'?'':'ghost'}" data-tab="home">Explorer</button>
-            <button class="pill ${active==='cellar'?'':'ghost'}" data-tab="cellar">Ma cave</button>
-            <button class="pill ghost" id="logout">Déco${uname ? ` • ${uname}` : ''}</button>
-          </div>
+  const user = getUser();
+  const uname = user ? esc(user.username) : '';
+  return `
+    <div class="topbar">
+      <div class="topbarInner">
+        <button class="hamburgerBtn" id="hamburgerBtn" aria-label="Menu">☰</button>
+        <div class="brand">
+          <img class="brandLogoSmall" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
+          <div class="brandText">Liquorne</div>
+        </div>
+        <div class="actions">
+          <button class="pill ${active==='home'?'':'ghost'}" data-tab="home">Explorer</button>
+          <button class="pill ${active==='cellar'?'':'ghost'}" data-tab="cellar">Ma cave</button>
         </div>
       </div>
-    `;
-  }
+    </div>
+    <div class="menuBackdrop" id="menuBackdrop" style="display:none"></div>
+    <div class="sideMenu" id="sideMenu" style="display:none" data-open="0">
+      <div class="sideHeader">
+        <div class="sideTitle">Liquorne</div>
+        <button class="sideClose" id="menuCloseBtn" aria-label="Fermer">✕</button>
+      </div>
+      <a href="#" class="sideItem" data-side="profile">Profil</a>
+      <a href="#" class="sideItem" data-side="settings">Paramètres</a>
+      <a href="#" class="sideItem" data-side="help">Aide</a>
+      <a href="#" class="sideItem danger" id="logout">Déconnexion</a>
+    </div>
+  `;
+}
 
   function editorModal(){
     if(!state.editor.open) return '';
@@ -751,8 +759,10 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
         </div>
       </div>
     </div>
-  `;
+        <button class="fab" id="addBtn" aria-label="Ajouter">+</button>
+    `;
 }
+
 
 function signupView(){
   return `
@@ -1108,3 +1118,51 @@ function signupView(){
   document.getElementById('menuSettings')?.addEventListener('click', (e) => { e.preventDefault(); alert('Paramètres (à venir)'); });
   document.getElementById('menuHelp')?.addEventListener('click', (e) => { e.preventDefault(); alert('Aide (à venir)'); });
 }
+
+function toggleMenu(){
+  const m = document.getElementById('sideMenu');
+  if(!m){ return; }
+  const isOpen = m.getAttribute('data-open') === '1';
+  m.setAttribute('data-open', isOpen ? '0' : '1');
+  m.style.display = isOpen ? 'none' : 'block';
+  const b = document.getElementById('menuBackdrop');
+  if(b){ b.style.display = isOpen ? 'none' : 'block'; }
+}
+function closeMenu(){
+  const m = document.getElementById('sideMenu');
+  if(m){ m.setAttribute('data-open','0'); m.style.display='none'; }
+  const b = document.getElementById('menuBackdrop');
+  if(b){ b.style.display='none'; }
+}
+
+function addView(){
+  return `
+    ${topbar('')}
+    <div class="page">
+      <div class="container">
+        <div class="row" style="justify-content:flex-start; gap:10px; margin: 8px 0 10px;">
+          <button class="btnGhost" id="backBtn">← Retour</button>
+        </div>
+        <div class="card">
+          <div class="authTitle">Ajouter un spiritueux</div>
+          <div class="small">Saisie rapide (V3.6):</div>
+          <input class="input" id="addName" placeholder="Nom (ex: Diplomatico Reserva)" />
+          <textarea class="input" id="addNote" placeholder="Ton avis..." style="min-height:110px; padding-top:10px"></textarea>
+          <button class="btnGold" id="saveAdd">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+document.addEventListener('click', e => {
+  const t = e.target;
+  if(!t) return;
+  if(t.id==='hamburgerBtn'){ toggleMenu(); return; }
+  if(t.id==='menuBackdrop' || t.id==='menuCloseBtn'){ closeMenu(); return; }
+  if(t.id==='backBtn'){ render('home'); return; }
+  if(t.id==='addBtn'){ render('add'); return; }
+  if(t.dataset && t.dataset.tab){ render(t.dataset.tab); return; }
+  if(t.id==='logout'){ logout(); return; }
+  if(t.id==='saveAdd'){ render('home'); return; }
+});
