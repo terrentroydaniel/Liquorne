@@ -326,31 +326,31 @@ window.__SPIRITS__=[{"id": "s1", "name": "Highland 12", "brand": "Liquorne Disti
     return `<button class="fab" id="fabAdd" aria-label="Ajouter">+</button>`;
   }
   function topbar(active){
-  const user = getUser();
-  const uname = user ? esc(user.username) : '';
   return `
     <div class="topbar">
       <div class="topbarInner">
         <button class="hamburgerBtn" id="hamburgerBtn" aria-label="Menu">☰</button>
-        <div class="brand">
+        <div class="brand" style="margin: 0 auto; gap: 10px;">
           <img class="brandLogoSmall" src="./assets/logo-diamond-256-v34.png" alt="Liquorne"/>
           <div class="brandText">Liquorne</div>
         </div>
-        <div class="actions">
+        <div class="actions" style="justify-content:center;">
           <button class="pill ${active==='home'?'':'ghost'}" data-tab="home">Explorer</button>
           <button class="pill ${active==='cellar'?'':'ghost'}" data-tab="cellar">Ma cave</button>
         </div>
       </div>
     </div>
+
     <div class="menuBackdrop" id="menuBackdrop" style="display:none"></div>
-    <div class="sideMenu" id="sideMenu" style="display:none" data-open="0">
+    <div class="sideMenu" id="sideMenu" style="display:none" data-open="0" role="dialog" aria-modal="true">
       <div class="sideHeader">
-        <div class="sideTitle">Liquorne</div>
+        <div class="sideTitle">Menu</div>
         <button class="sideClose" id="menuCloseBtn" aria-label="Fermer">✕</button>
       </div>
       <a href="#" class="sideItem" data-side="profile">Profil</a>
       <a href="#" class="sideItem" data-side="settings">Paramètres</a>
       <a href="#" class="sideItem" data-side="help">Aide</a>
+      <div style="height:14px"></div>
       <a href="#" class="sideItem danger" id="logout">Déconnexion</a>
     </div>
   `;
@@ -1165,4 +1165,31 @@ document.addEventListener('click', e => {
   if(t.dataset && t.dataset.tab){ render(t.dataset.tab); return; }
   if(t.id==='logout'){ logout(); return; }
   if(t.id==='saveAdd'){ render('home'); return; }
+});
+
+function wireMenuClose(){
+  const m = document.getElementById('sideMenu');
+  if(!m) return;
+  m.addEventListener('click', () => { closeMenu(); }, { once:false });
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target;
+  if(!t) return;
+
+  // menu open/close
+  if(t.id === 'hamburgerBtn'){ toggleMenu(); return; }
+  if(t.id === 'menuBackdrop' || t.id === 'menuCloseBtn'){ closeMenu(); return; }
+
+  // side items close menu
+  if(t.classList && t.classList.contains('sideItem')){
+    closeMenu();
+    // keep placeholders
+    if(t.id === 'logout'){ logout(); }
+    return;
+  }
+
+  // add/back
+  if(t.id === 'addBtn'){ render('add'); return; }
+  if(t.id === 'backBtn'){ render('home'); return; }
 });

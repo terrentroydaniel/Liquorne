@@ -643,3 +643,40 @@ select{appearance:none}
   border-bottom:1px solid rgba(255,255,255,.08);
 }
 .sideItem.danger{ color: #ffb4b4; }
+
+
+/* === V3.6.3 Menu plein écran + lisibilité === */
+.menuBackdrop{ background: rgba(0,0,0,.55) !important; }
+
+.sideMenu{
+  width: 100vw !important;
+  right: 0 !important;
+  border-right: none !important;
+  padding: 22px 18px !important;
+  background: #0A1120 !important;
+}
+
+.sideItem{
+  font-size: 18px !important;
+  color: rgba(255,255,255,.92) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+.sideHeader{ margin-bottom: 14px !important; }
+.sideTitle{ font-size: 20px !important; }
+
+.sideItem.danger{
+  color: #D9B25F !important;
+  font-weight: 700 !important;
+}
+
+.btnGhost#backBtn{
+  background: rgba(10,17,32,.92) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 18px rgba(0,0,0,.20) !important;
+}
+
+.page .container{ padding-bottom: 88px; } /* avoid FAB overlap */
