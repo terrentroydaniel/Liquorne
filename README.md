@@ -1,12 +1,13 @@
-# Liquorne — PWA V3.1 corrigée
+# Liquorne — PWA V3.3
 
-Correction importante :
-- correction d'une erreur JavaScript dans le bouton "Valider et continuer" du pré-remplissage ;
-- nouveau cache service worker pour éviter que le navigateur garde la V3 cassée ;
-- logo PNG conservé ;
-- OCR réel via Tesseract.js + recherche OpenFoodFacts / Wikipedia.
+## Corrections
+- Logo header rendu en SVG inline data URI : il reste visible même si le dossier `icons/` est mal uploadé.
+- Icône notification rendue en CSS/SVG, plus de bouton vide.
+- Navigation basse rendue avec fallbacks CSS, moins dépendante des polices/emoji Android.
+- Cache service worker changé pour forcer le rechargement.
 
-Après déploiement sur GitHub Pages :
-1. vider le cache du site si besoin ;
-2. ou ouvrir Chrome > Infos site > Effacer les données ;
+## Important après upload GitHub Pages
+Sur Android Chrome :
+1. menu du site / Infos du site ;
+2. Effacer les données ;
 3. recharger la page.
