@@ -1,5 +1,5 @@
-const CACHE_NAME='liquorne-pwa-v4-functional-accessible-1';
-const ASSETS=['./','./index.html','./manifest.webmanifest','./icons/liquorne-logo.png','./icons/liquorne-logo.svg','./icons/icon-192.png','./icons/icon-512.png'];
+const CACHE_NAME='liquorne-github-only-v5';
+const ASSETS=['./','./index.html','./manifest.webmanifest','./icons/icon.svg','./icons/liquorne-logo.svg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS).catch(()=>{})));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(e.request.method==='GET'&&new URL(e.request.url).origin===self.location.origin){let copy=r.clone();caches.open(CACHE_NAME).then(c=>c.put(e.request,copy))}return r}).catch(()=>caches.match('./index.html'))))});
+self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).catch(()=>caches.match('./index.html'))))});
