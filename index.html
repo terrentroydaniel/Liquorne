@@ -62,43 +62,523 @@ h1{font-size:clamp(1.8rem,7vw,2.45rem);line-height:1.04;font-weight:600;letter-s
 <div class="sheet" id="sheet"><div id="sheetContent"></div></div>
 </main>
 <script>
-const KEY='liquorne.github.v5';let bottles=JSON.parse(localStorage.getItem(KEY)||'[]'),currentId=null,photoData='',photoFile=null,caveFilter='all',sortDesc=true;
-const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-function save(){localStorage.setItem(KEY,JSON.stringify(bottles))}function toast(m){alert(m)}function setProgress(p,t){$('#progress').classList.add('show');$('#bar').style.width=p+'%';$('#status').textContent=t}function uid(){return Date.now().toString(36)+Math.random().toString(16).slice(2)}
-function readFile(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
-async function onFile(file){if(!file)return;photoFile=file;photoData=await readFile(file);$('#preview').style.display='block';$('#preview img').src=photoData}
-$('#camera').onchange=e=>onFile(e.target.files[0]);$('#gallery').onchange=e=>onFile(e.target.files[0]);
-const localDb=[
-{match:['buffalo trace','buffalo','trace'],name:'Buffalo Trace Kentucky Straight Bourbon Whiskey',brand:'Buffalo Trace',type:'Whisky',subtype:'Bourbon',country:'États-Unis',region:'Kentucky',abv:'45%',aromaTags:['Vanille','Caramel','Chêne','Épices douces'],aromaProfile:{fruite:4,boise:7,epice:6,gourmand:8,floral:2,fume:2,vegetal:2,mineral:1},confidence:.92,source:'Base locale Liquorne'},
-{match:['depaz'],name:'Depaz 2003 Brut de Fût',brand:'Depaz',type:'Rhum',subtype:'Agricole',country:'Martinique',region:'Martinique',abv:'',aromaTags:['Vanille','Bois d’Inde','Fruits secs','Épices'],aromaProfile:{fruite:6,boise:8,epice:7,gourmand:6,floral:3,fume:3,vegetal:3,mineral:1},confidence:.86,source:'Base locale Liquorne'},
-{match:['macallan'],name:'The Macallan 12 Sherry Oak',brand:'The Macallan',type:'Whisky',subtype:'Single Malt',country:'Écosse',region:'Speyside',abv:'40%',aromaTags:['Fruits secs','Chêne','Épices douces','Sherry'],aromaProfile:{fruite:6,boise:7,epice:5,gourmand:7,floral:2,fume:1,vegetal:1,mineral:1},confidence:.84,source:'Base locale Liquorne'}];
-function normalizeCandidate(c){return{id:uid(),name:c.name||c.product_name||'Bouteille à compléter',brand:c.brand||c.brands||'',type:c.type||guessType([c.name,c.product_name,c.categories].join(' ')),subtype:c.subtype||'',country:c.country||c.countries||'',region:c.region||'',abv:c.abv||'',barcode:c.barcode||c.code||'',aromaTags:c.aromaTags||suggestAromas([c.name,c.product_name,c.categories].join(' ')),aromaProfile:c.aromaProfile||profileFromAromas(c.aromaTags||[]),confidence:c.confidence||.55,source:c.source||'Recherche publique',image:photoData,rating:'',note:'',status:'owned',createdAt:Date.now()}}
-function guessType(t){t=(t||'').toLowerCase();if(/bourbon|whisky|whiskey/.test(t))return'Whisky';if(/rhum|rum/.test(t))return'Rhum';if(/tequila/.test(t))return'Tequila';if(/cognac/.test(t))return'Cognac';if(/gin/.test(t))return'Gin';return'Autre'}
-function suggestAromas(t){t=(t||'').toLowerCase();const s=new Set();if(/buffalo|bourbon|whisk|oak|chêne/.test(t))['Vanille','Caramel','Chêne','Épices douces'].forEach(x=>s.add(x));if(/rhum|rum/.test(t))['Fruits tropicaux','Caramel','Épices douces'].forEach(x=>s.add(x));if(/gin/.test(t))['Genièvre','Agrumes','Floral'].forEach(x=>s.add(x));if(!s.size)['Vanille','Caramel','Boisé'].forEach(x=>s.add(x));return[...s]}
-function profileFromAromas(ar){let t=(ar||[]).join(' ').toLowerCase();return{fruite:/fruit|agrume|tropical/.test(t)?7:3,boise:/bois|chêne|oak/.test(t)?8:3,epice:/épic|poivre|cannelle/.test(t)?7:3,gourmand:/vanille|caramel|chocolat|miel/.test(t)?8:3,floral:/floral|fleur/.test(t)?7:2,fume:/fum|tourb|smok/.test(t)?8:2,vegetal:/végét|agave|genièvre/.test(t)?6:2,mineral:2}}
-async function searchOpenFoodFacts(q){try{const url='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+'&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,categories,countries,image_url,code';const r=await fetch(url);const d=await r.json();return(d.products||[]).filter(p=>p.product_name||p.brands).map(p=>normalizeCandidate({name:p.product_name,brand:(p.brands||'').split(',')[0],country:(p.countries||'').split(',')[0],barcode:p.code,type:guessType([p.product_name,p.categories].join(' ')),source:'OpenFoodFacts'}))}catch(e){return[]}}
-async function searchWikipedia(q){try{const r=await fetch('https://fr.wikipedia.org/w/api.php?action=opensearch&search='+encodeURIComponent(q)+'&limit=3&format=json&origin=*');const d=await r.json();return(d[1]||[]).map(name=>normalizeCandidate({name,brand:name.split(' ').slice(0,2).join(' '),type:guessType(name),source:'Wikipedia'}))}catch(e){return[]}}
-async function detectBarcode(){if(!photoData||!('BarcodeDetector'in window))return'';try{const det=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});const blob=await(await fetch(photoData)).blob();const bmp=await createImageBitmap(blob);const codes=await det.detect(bmp);return codes[0]?.rawValue||''}catch(e){return''}}
-async function searchBarcode(code){if(!code)return[];try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=product_name,brands,categories,countries,image_url,code');const d=await r.json();if(!d.product)return[];const p=d.product;return[normalizeCandidate({name:p.product_name,brand:(p.brands||'').split(',')[0],country:(p.countries||'').split(',')[0],barcode:p.code,type:guessType([p.product_name,p.categories].join(' ')),source:'OpenFoodFacts code-barres'})]}catch(e){return[]}}
-$('#searchBtn').onclick=async()=>{const q=$('#query').value.trim();if(!q){toast('Saisissez au moins le nom ou la marque visible.');$('#query').focus();return}setProgress(10,'Préparation de la recherche…');let candidates=[];candidates.push(...localDb.filter(x=>x.match.some(m=>q.toLowerCase().includes(m)||m.includes(q.toLowerCase()))).map(normalizeCandidate));setProgress(25,'Recherche du code-barres si visible…');const code=await detectBarcode();if(code)candidates.push(...await searchBarcode(code));setProgress(55,'Recherche dans les bases publiques…');candidates.push(...await searchOpenFoodFacts(q));setProgress(80,'Recherche complémentaire Wikipedia…');candidates.push(...await searchWikipedia(q));candidates=dedupe(candidates).slice(0,8);setProgress(100,candidates.length?'Choisissez le bon résultat.':'Aucun résultat fiable. Complétez manuellement.');renderCandidates(candidates,q)}
-function dedupe(list){const seen=new Set();return list.filter(c=>{const k=(c.name+'|'+c.brand).toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
-function renderCandidates(candidates,q){$('#results').innerHTML='<div class="panel"><h2>Résultats candidats</h2><p class="muted">'+candidates.length+' résultat(s) pour “'+q+'”. Choisissez le bon, ou créez une fiche manuelle.</p></div>'+candidates.map((c,i)=>candidateHtml(c,i)).join('')+'<button class="btn secondary" style="width:100%;margin:10px 0" id="manualBtn">Créer une fiche manuelle</button>';candidates.forEach((c,i)=>$('#choose_'+i).onclick=()=>validateCandidate(c));$('#manualBtn').onclick=()=>validateCandidate(normalizeCandidate({name:q,brand:q.split(' ').slice(0,2).join(' '),source:'Saisie manuelle'}))}
-function candidateHtml(c,i){return'<article class="candidate"><div class="row"><div><h3>'+c.name+'</h3><p class="muted">'+(c.brand||'')+' · '+(c.type||'')+(c.subtype?' · '+c.subtype:'')+(c.country?' · '+c.country:'')+(c.abv?' · '+c.abv:'')+'</p></div><span class="tag">'+Math.round((c.confidence||.5)*100)+'%</span></div><p class="note">Source : '+(c.source||'—')+'</p><div class="tags">'+(c.aromaTags||[]).map(t=>'<span class="tag">'+t+'</span>').join('')+'</div><div class="radar">'+radarSvg(c.aromaProfile)+'</div><button class="btn primary" id="choose_'+i+'" style="width:100%;margin-top:12px">Valider ce résultat</button></article>'}
-function validateCandidate(c){bottles.unshift(c);save();currentId=c.id;renderAll();nav('Detail')}
-function renderAll(){renderStats();renderCave();renderJournal();renderProfile();renderDetail()}
-function renderStats(){const wish=bottles.filter(b=>b.status==='wish').length,tasted=bottles.filter(b=>b.rating).length,r=bottles.map(b=>+b.rating).filter(x=>x>0);$('#stOwned').textContent=bottles.length-wish;$('#stTasted').textContent=tasted;$('#stWish').textContent=wish;$('#stAvg').textContent=r.length?(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1):'—'}
-function renderCave(){let q=($('#caveSearch')?.value||'').toLowerCase();let list=bottles.filter(b=>(caveFilter==='all'||(caveFilter==='tasted'?b.rating:b.status===caveFilter))&&(!q||[b.name,b.brand,b.type,b.country,(b.aromaTags||[]).join(' ')].join(' ').toLowerCase().includes(q)));list.sort((a,b)=>sortDesc?(b.createdAt||0)-(a.createdAt||0):(a.createdAt||0)-(b.createdAt||0));$('#caveList').innerHTML=list.length?list.map(b=>cardHtml(b)).join(''):'<div class="empty"><strong>Votre cave est vide</strong>Recherchez et validez votre première bouteille.</div>'}
-function cardHtml(b){return'<article class="candidate" data-id="'+b.id+'">'+(b.image?'<img src="'+b.image+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-bottom:10px">':'')+'<h3>'+b.name+'</h3><p class="muted">'+(b.brand||'')+' · '+(b.type||'')+(b.country?' · '+b.country:'')+(b.abv?' · '+b.abv:'')+'</p><div class="tags">'+(b.aromaTags||[]).slice(0,8).map(t=>'<span class="tag">'+t+'</span>').join('')+'</div><div class="grid3" style="margin-top:12px"><button class="btn secondary" onclick="openBottle(\\''+b.id+'\\')">Ouvrir</button><button class="btn secondary" onclick="rateBottle(\\''+b.id+'\\')">Noter</button><button class="btn danger" onclick="deleteBottle(\\''+b.id+'\\')">Supprimer</button></div></article>'}
-function openBottle(id){currentId=id;renderDetail();nav('Detail')}
-function renderDetail(){const b=bottles.find(x=>x.id===currentId)||bottles[0];if(!b){$('#detailContent').innerHTML='<div class="empty"><strong>Aucune bouteille</strong></div>';return}currentId=b.id;$('#dTitle').textContent=b.name;$('#dSub').textContent=[b.type,b.country,b.abv].filter(Boolean).join(' · ');$('#detailContent').innerHTML='<div class="panel">'+(b.image?'<img src="'+b.image+'" style="width:100%;max-height:300px;object-fit:cover;border-radius:18px;margin-bottom:12px">':'')+'<h2>'+b.name+'</h2><p class="muted">'+(b.brand||'')+' · '+(b.type||'')+(b.subtype?' · '+b.subtype:'')+(b.country?' · '+b.country:'')+(b.abv?' · '+b.abv:'')+'</p><div class="tags">'+(b.aromaTags||[]).map(t=>'<span class="tag">'+t+'</span>').join('')+'</div><div class="radar">'+radarSvg(b.aromaProfile)+'</div></div><div class="panel"><h2>Ma dégustation</h2><label class="muted">Note</label><input id="detailRating" value="'+(b.rating||'')+'" placeholder="Ex. 4.5"><label class="muted" style="display:block;margin-top:10px">Commentaire</label><textarea id="detailNote" placeholder="Nez, bouche, finale...">'+(b.note||'')+'</textarea><div class="grid2" style="margin-top:12px"><button class="btn primary" id="saveDetail">Enregistrer</button><button class="btn secondary" id="wishDetail">'+(b.status==='wish'?'Retirer wishlist':'Wishlist')+'</button></div></div>';$('#saveDetail').onclick=()=>{b.rating=$('#detailRating').value.trim();b.note=$('#detailNote').value.trim();save();renderAll();nav('Detail')};$('#wishDetail').onclick=()=>{b.status=b.status==='wish'?'owned':'wish';save();renderAll();nav('Detail')}}
-function rateBottle(id){currentId=id;renderDetail();nav('Detail');setTimeout(()=>$('#detailRating')?.focus(),100)}
-function deleteBottle(id){const b=bottles.find(x=>x.id===id);if(confirm('Supprimer '+(b?.name||'cette bouteille')+' ?')){bottles=bottles.filter(x=>x.id!==id);save();renderAll()}}
-function renderJournal(){const rated=bottles.filter(b=>b.rating||b.note);$('#journalList').innerHTML=rated.length?rated.map(b=>cardHtml(b)).join(''):'<div class="empty"><strong>Aucune dégustation</strong>Notez une bouteille pour alimenter le journal.</div>'}
-function renderProfile(){const totals={fruite:0,boise:0,epice:0,gourmand:0,floral:0,fume:0,vegetal:0,mineral:0},counts={};bottles.forEach(b=>{Object.keys(totals).forEach(k=>totals[k]+=+(b.aromaProfile?.[k]||0));(b.aromaTags||[]).forEach(t=>counts[t]=(counts[t]||0)+1)});const n=bottles.length||1;Object.keys(totals).forEach(k=>totals[k]=Math.round(totals[k]/n));$('#profileRadar').innerHTML=radarSvg(totals);const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);$('#topAromas').innerHTML=top.length?top.map(([t,c])=>'<span class="tag">'+t+' · '+c+'</span>').join(''):'<span class="muted">Ajoutez des bouteilles pour construire votre profil.</span>'}
-function radarSvg(profile={}){const labels=[['Fruité','fruite'],['Boisé','boise'],['Épicé','epice'],['Gourmand','gourmand'],['Floral','floral'],['Fumé','fume'],['Végétal','vegetal'],['Minéral','mineral']];const size=260,cx=130,cy=130,r=82,n=labels.length;const p=(i,l=10)=>{const a=-Math.PI/2+i*2*Math.PI/n,rr=r*l/10;return[cx+rr*Math.cos(a),cy+rr*Math.sin(a)]};const grids=[2,4,6,8,10].map(l=>'<polygon class="grid" points="'+labels.map((_,i)=>p(i,l).join(',')).join(' ')+'"/>').join('');const axes=labels.map((_,i)=>'<line class="axis" x1="'+cx+'" y1="'+cy+'" x2="'+p(i)[0]+'" y2="'+p(i)[1]+'"/>').join('');const pts=labels.map(([_,k],i)=>p(i,Math.max(0,Math.min(10,Number(profile[k]||0)))));const text=labels.map(([label],i)=>{const q=p(i,12.4);return'<text text-anchor="middle" x="'+q[0]+'" y="'+q[1]+'">'+label+'</text>'}).join('');return'<svg viewBox="0 0 '+size+' '+size+'">'+grids+axes+'<polygon class="poly" points="'+pts.map(x=>x.join(',')).join(' ')+'"/>'+pts.map(x=>'<circle class="dot" cx="'+x[0]+'" cy="'+x[1]+'" r="4"/>').join('')+text+'</svg>'}
-function nav(page){['Explorer','Cave','Detail','Journal','Profile'].forEach(p=>$('#page'+p).classList.toggle('active',p===page));$$('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===page));if(page==='Cave')renderCave();if(page==='Journal')renderJournal();if(page==='Profile')renderProfile()}
-$$('[data-nav]').forEach(b=>b.onclick=()=>nav(b.dataset.nav));$('#caveSearch').oninput=renderCave;$('#sortBtn').onclick=()=>{sortDesc=!sortDesc;renderCave()};$$('[data-filter]').forEach(b=>b.onclick=()=>{caveFilter=b.dataset.filter;$$('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));renderCave()});$('#exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify(bottles,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='liquorne-cave.json';a.click()};$('#notifBtn').onclick=()=>toast('Aucune notification.');$('#shareBtn').onclick=()=>{const b=bottles.find(x=>x.id===currentId);if(navigator.share&&b)navigator.share({title:b.name,text:b.name,url:location.href});else toast('Partage indisponible sur ce navigateur.')};$('#menuBtn').onclick=()=>{const b=bottles.find(x=>x.id===currentId);$('#sheetContent').innerHTML=b?'<div class="sheet-title">'+b.name+'</div><button onclick="rateBottle(\\''+b.id+'\\')">Noter</button><button onclick="deleteBottle(\\''+b.id+'\\');closeSheet()">Supprimer</button><button onclick="closeSheet()">Fermer</button>':'<button onclick="closeSheet()">Fermer</button>';$('#sheet').classList.add('show')};function closeSheet(){$('#sheet').classList.remove('show')}
-renderAll();if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+const KEY='liquorne.github.v5_1_1';
+let bottles = JSON.parse(localStorage.getItem(KEY) || '[]');
+let currentId = null;
+let photoData = '';
+let photoFile = null;
+let caveFilter = 'all';
+let sortDesc = true;
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+function save(){ localStorage.setItem(KEY, JSON.stringify(bottles)); }
+function toast(m){ alert(m); }
+function setProgress(p,t){
+  $('#progress').classList.add('show');
+  $('#bar').style.width = p + '%';
+  $('#status').textContent = t;
+}
+function uid(){ return Date.now().toString(36) + Math.random().toString(16).slice(2); }
+
+function readFile(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+async function onFile(file){
+  if(!file) return;
+  photoFile = file;
+  photoData = await readFile(file);
+  const preview = $('#preview');
+  preview.style.display = 'block';
+  preview.querySelector('img').src = photoData;
+  setProgress(0, 'Photo ajoutée. Lancez la recherche.');
+}
+
+$('#camera').addEventListener('change', e => onFile(e.target.files[0]));
+$('#gallery').addEventListener('change', e => onFile(e.target.files[0]));
+
+const localDb = [
+  {
+    match:['buffalo trace','buffalo','trace'],
+    name:'Buffalo Trace Kentucky Straight Bourbon Whiskey',
+    brand:'Buffalo Trace',
+    type:'Whisky',
+    subtype:'Bourbon',
+    country:'États-Unis',
+    region:'Kentucky',
+    abv:'45%',
+    aromaTags:['Vanille','Caramel','Chêne','Épices douces'],
+    aromaProfile:{fruite:4,boise:7,epice:6,gourmand:8,floral:2,fume:2,vegetal:2,mineral:1},
+    confidence:.92,
+    source:'Base locale Liquorne'
+  },
+  {
+    match:['depaz'],
+    name:'Depaz 2003 Brut de Fût',
+    brand:'Depaz',
+    type:'Rhum',
+    subtype:'Agricole',
+    country:'Martinique',
+    region:'Martinique',
+    abv:'',
+    aromaTags:['Vanille','Bois d’Inde','Fruits secs','Épices'],
+    aromaProfile:{fruite:6,boise:8,epice:7,gourmand:6,floral:3,fume:3,vegetal:3,mineral:1},
+    confidence:.86,
+    source:'Base locale Liquorne'
+  },
+  {
+    match:['macallan'],
+    name:'The Macallan 12 Sherry Oak',
+    brand:'The Macallan',
+    type:'Whisky',
+    subtype:'Single Malt',
+    country:'Écosse',
+    region:'Speyside',
+    abv:'40%',
+    aromaTags:['Fruits secs','Chêne','Épices douces','Sherry'],
+    aromaProfile:{fruite:6,boise:7,epice:5,gourmand:7,floral:2,fume:1,vegetal:1,mineral:1},
+    confidence:.84,
+    source:'Base locale Liquorne'
+  }
+];
+
+function normalizeCandidate(c){
+  const tags = c.aromaTags || suggestAromas([c.name,c.product_name,c.categories].join(' '));
+  return {
+    id: uid(),
+    name: c.name || c.product_name || 'Bouteille à compléter',
+    brand: c.brand || c.brands || '',
+    type: c.type || guessType([c.name,c.product_name,c.categories].join(' ')),
+    subtype: c.subtype || '',
+    country: c.country || c.countries || '',
+    region: c.region || '',
+    abv: c.abv || '',
+    barcode: c.barcode || c.code || '',
+    aromaTags: tags,
+    aromaProfile: c.aromaProfile || profileFromAromas(tags),
+    confidence: c.confidence || .55,
+    source: c.source || 'Recherche publique',
+    image: photoData,
+    rating: '',
+    note: '',
+    status: 'owned',
+    createdAt: Date.now()
+  };
+}
+
+function guessType(t){
+  t = (t || '').toLowerCase();
+  if(/bourbon|whisky|whiskey/.test(t)) return 'Whisky';
+  if(/rhum|rum/.test(t)) return 'Rhum';
+  if(/tequila/.test(t)) return 'Tequila';
+  if(/cognac/.test(t)) return 'Cognac';
+  if(/gin/.test(t)) return 'Gin';
+  return 'Autre';
+}
+
+function suggestAromas(t){
+  t = (t || '').toLowerCase();
+  const s = new Set();
+  if(/buffalo|bourbon|whisk|oak|chêne/.test(t)) ['Vanille','Caramel','Chêne','Épices douces'].forEach(x=>s.add(x));
+  if(/rhum|rum/.test(t)) ['Fruits tropicaux','Caramel','Épices douces'].forEach(x=>s.add(x));
+  if(/gin/.test(t)) ['Genièvre','Agrumes','Floral'].forEach(x=>s.add(x));
+  if(!s.size) ['Vanille','Caramel','Boisé'].forEach(x=>s.add(x));
+  return [...s];
+}
+
+function profileFromAromas(ar){
+  const t = (ar || []).join(' ').toLowerCase();
+  return {
+    fruite:/fruit|agrume|tropical/.test(t)?7:3,
+    boise:/bois|chêne|oak/.test(t)?8:3,
+    epice:/épic|poivre|cannelle/.test(t)?7:3,
+    gourmand:/vanille|caramel|chocolat|miel/.test(t)?8:3,
+    floral:/floral|fleur/.test(t)?7:2,
+    fume:/fum|tourb|smok/.test(t)?8:2,
+    vegetal:/végét|agave|genièvre/.test(t)?6:2,
+    mineral:2
+  };
+}
+
+async function searchOpenFoodFacts(q){
+  try{
+    const url = 'https://world.openfoodfacts.org/cgi/search.pl?search_terms=' + encodeURIComponent(q) + '&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,categories,countries,image_url,code';
+    const r = await fetch(url);
+    const d = await r.json();
+    return (d.products || [])
+      .filter(p => p.product_name || p.brands)
+      .map(p => normalizeCandidate({
+        name:p.product_name,
+        brand:(p.brands || '').split(',')[0],
+        country:(p.countries || '').split(',')[0],
+        barcode:p.code,
+        type:guessType([p.product_name,p.categories].join(' ')),
+        source:'OpenFoodFacts'
+      }));
+  }catch(e){
+    console.warn(e);
+    return [];
+  }
+}
+
+async function searchWikipedia(q){
+  try{
+    const r = await fetch('https://fr.wikipedia.org/w/api.php?action=opensearch&search=' + encodeURIComponent(q) + '&limit=3&format=json&origin=*');
+    const d = await r.json();
+    return (d[1] || []).map(name => normalizeCandidate({
+      name,
+      brand:name.split(' ').slice(0,2).join(' '),
+      type:guessType(name),
+      source:'Wikipedia'
+    }));
+  }catch(e){
+    console.warn(e);
+    return [];
+  }
+}
+
+async function detectBarcode(){
+  if(!photoData || !('BarcodeDetector' in window)) return '';
+  try{
+    const det = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
+    const blob = await (await fetch(photoData)).blob();
+    const bmp = await createImageBitmap(blob);
+    const codes = await det.detect(bmp);
+    return codes[0]?.rawValue || '';
+  }catch(e){
+    console.warn(e);
+    return '';
+  }
+}
+
+async function searchBarcode(code){
+  if(!code) return [];
+  try{
+    const r = await fetch('https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code) + '.json?fields=product_name,brands,categories,countries,image_url,code');
+    const d = await r.json();
+    if(!d.product) return [];
+    const p = d.product;
+    return [normalizeCandidate({
+      name:p.product_name,
+      brand:(p.brands || '').split(',')[0],
+      country:(p.countries || '').split(',')[0],
+      barcode:p.code,
+      type:guessType([p.product_name,p.categories].join(' ')),
+      source:'OpenFoodFacts code-barres'
+    })];
+  }catch(e){
+    console.warn(e);
+    return [];
+  }
+}
+
+$('#searchBtn').addEventListener('click', async () => {
+  const q = $('#query').value.trim();
+  if(!q){
+    toast('Saisissez au moins le nom ou la marque visible.');
+    $('#query').focus();
+    return;
+  }
+
+  setProgress(10,'Préparation de la recherche…');
+  let candidates = [];
+
+  const qLower = q.toLowerCase();
+  candidates.push(...localDb
+    .filter(x => x.match.some(m => qLower.includes(m) || m.includes(qLower)))
+    .map(normalizeCandidate));
+
+  setProgress(25,'Recherche du code-barres si visible…');
+  const code = await detectBarcode();
+  if(code) candidates.push(...await searchBarcode(code));
+
+  setProgress(55,'Recherche dans les bases publiques…');
+  candidates.push(...await searchOpenFoodFacts(q));
+
+  setProgress(80,'Recherche complémentaire Wikipedia…');
+  candidates.push(...await searchWikipedia(q));
+
+  candidates = dedupe(candidates).slice(0,8);
+
+  setProgress(100, candidates.length ? 'Choisissez le bon résultat.' : 'Aucun résultat fiable. Complétez manuellement.');
+  renderCandidates(candidates, q);
+});
+
+function dedupe(list){
+  const seen = new Set();
+  return list.filter(c => {
+    const k = (c.name + '|' + c.brand).toLowerCase();
+    if(seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
+function renderCandidates(candidates, q){
+  $('#results').innerHTML =
+    '<div class="panel"><h2>Résultats candidats</h2><p class="muted">' + candidates.length + ' résultat(s) pour “' + escapeHtml(q) + '”. Choisissez le bon, ou créez une fiche manuelle.</p></div>' +
+    candidates.map((c,i) => candidateHtml(c,i)).join('') +
+    '<button class="btn secondary" style="width:100%;margin:10px 0" id="manualBtn">Créer une fiche manuelle</button>';
+
+  candidates.forEach((c,i) => {
+    $('#choose_' + i).addEventListener('click', () => validateCandidate(c));
+  });
+
+  $('#manualBtn').addEventListener('click', () => validateCandidate(normalizeCandidate({
+    name:q,
+    brand:q.split(' ').slice(0,2).join(' '),
+    source:'Saisie manuelle'
+  })));
+}
+
+function candidateHtml(c,i){
+  return `
+    <article class="candidate">
+      <div class="row">
+        <div>
+          <h3>${escapeHtml(c.name)}</h3>
+          <p class="muted">${escapeHtml([c.brand,c.type,c.subtype,c.country,c.abv].filter(Boolean).join(' · '))}</p>
+        </div>
+        <span class="tag">${Math.round((c.confidence||.5)*100)}%</span>
+      </div>
+      <p class="note">Source : ${escapeHtml(c.source || '—')}</p>
+      <div class="tags">${(c.aromaTags||[]).map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('')}</div>
+      <div class="radar">${radarSvg(c.aromaProfile)}</div>
+      <button class="btn primary" id="choose_${i}" style="width:100%;margin-top:12px">Valider ce résultat</button>
+    </article>`;
+}
+
+function validateCandidate(c){
+  bottles.unshift(c);
+  save();
+  currentId = c.id;
+  renderAll();
+  nav('Detail');
+}
+
+function renderAll(){
+  renderStats();
+  renderCave();
+  renderJournal();
+  renderProfile();
+  renderDetail();
+}
+
+function renderStats(){
+  const wish = bottles.filter(b => b.status === 'wish').length;
+  const tasted = bottles.filter(b => b.rating).length;
+  const ratings = bottles.map(b => +b.rating).filter(x => x > 0);
+  $('#stOwned').textContent = bottles.length - wish;
+  $('#stTasted').textContent = tasted;
+  $('#stWish').textContent = wish;
+  $('#stAvg').textContent = ratings.length ? (ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1) : '—';
+}
+
+function renderCave(){
+  const q = ($('#caveSearch')?.value || '').toLowerCase();
+  let list = bottles.filter(b =>
+    (caveFilter === 'all' || (caveFilter === 'tasted' ? b.rating : b.status === caveFilter)) &&
+    (!q || [b.name,b.brand,b.type,b.country,(b.aromaTags||[]).join(' ')].join(' ').toLowerCase().includes(q))
+  );
+
+  list.sort((a,b) => sortDesc ? (b.createdAt||0)-(a.createdAt||0) : (a.createdAt||0)-(b.createdAt||0));
+
+  $('#caveList').innerHTML = list.length ? list.map(b => cardHtml(b)).join('') :
+    '<div class="empty"><strong>Votre cave est vide</strong>Recherchez et validez votre première bouteille.</div>';
+}
+
+function cardHtml(b){
+  return `
+    <article class="candidate" data-id="${b.id}">
+      ${b.image ? '<img src="'+b.image+'" style="width:100%;max-height:220px;object-fit:cover;border-radius:16px;margin-bottom:10px">' : ''}
+      <h3>${escapeHtml(b.name)}</h3>
+      <p class="muted">${escapeHtml([b.brand,b.type,b.country,b.abv].filter(Boolean).join(' · '))}</p>
+      <div class="tags">${(b.aromaTags||[]).slice(0,8).map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('')}</div>
+      <div class="grid3" style="margin-top:12px">
+        <button class="btn secondary" data-open-id="${b.id}">Ouvrir</button>
+        <button class="btn secondary" data-rate-id="${b.id}">Noter</button>
+        <button class="btn danger" data-delete-id="${b.id}">Supprimer</button>
+      </div>
+    </article>`;
+}
+
+document.addEventListener('click', (e) => {
+  const open = e.target.closest('[data-open-id]');
+  if(open) openBottle(open.dataset.openId);
+
+  const rate = e.target.closest('[data-rate-id]');
+  if(rate) rateBottle(rate.dataset.rateId);
+
+  const del = e.target.closest('[data-delete-id]');
+  if(del) deleteBottle(del.dataset.deleteId);
+});
+
+function openBottle(id){
+  currentId = id;
+  renderDetail();
+  nav('Detail');
+}
+
+function renderDetail(){
+  const b = bottles.find(x => x.id === currentId) || bottles[0];
+  if(!b){
+    $('#detailContent').innerHTML = '<div class="empty"><strong>Aucune bouteille</strong></div>';
+    return;
+  }
+
+  currentId = b.id;
+  $('#dTitle').textContent = b.name;
+  $('#dSub').textContent = [b.type,b.country,b.abv].filter(Boolean).join(' · ');
+
+  $('#detailContent').innerHTML = `
+    <div class="panel">
+      ${b.image ? '<img src="'+b.image+'" style="width:100%;max-height:300px;object-fit:cover;border-radius:18px;margin-bottom:12px">' : ''}
+      <h2>${escapeHtml(b.name)}</h2>
+      <p class="muted">${escapeHtml([b.brand,b.type,b.subtype,b.country,b.abv].filter(Boolean).join(' · '))}</p>
+      <div class="tags">${(b.aromaTags||[]).map(t=>'<span class="tag">'+escapeHtml(t)+'</span>').join('')}</div>
+      <div class="radar">${radarSvg(b.aromaProfile)}</div>
+    </div>
+    <div class="panel">
+      <h2>Ma dégustation</h2>
+      <label class="muted">Note</label>
+      <input id="detailRating" value="${escapeAttr(b.rating||'')}" placeholder="Ex. 4.5">
+      <label class="muted" style="display:block;margin-top:10px">Commentaire</label>
+      <textarea id="detailNote" placeholder="Nez, bouche, finale...">${escapeHtml(b.note||'')}</textarea>
+      <div class="grid2" style="margin-top:12px">
+        <button class="btn primary" id="saveDetail">Enregistrer</button>
+        <button class="btn secondary" id="wishDetail">${b.status === 'wish' ? 'Retirer wishlist' : 'Wishlist'}</button>
+      </div>
+    </div>`;
+
+  $('#saveDetail').addEventListener('click', () => {
+    b.rating = $('#detailRating').value.trim();
+    b.note = $('#detailNote').value.trim();
+    save();
+    renderAll();
+    nav('Detail');
+  });
+
+  $('#wishDetail').addEventListener('click', () => {
+    b.status = b.status === 'wish' ? 'owned' : 'wish';
+    save();
+    renderAll();
+    nav('Detail');
+  });
+}
+
+function rateBottle(id){
+  currentId = id;
+  renderDetail();
+  nav('Detail');
+  setTimeout(() => $('#detailRating')?.focus(), 100);
+}
+
+function deleteBottle(id){
+  const b = bottles.find(x => x.id === id);
+  if(confirm('Supprimer ' + (b?.name || 'cette bouteille') + ' ?')){
+    bottles = bottles.filter(x => x.id !== id);
+    if(currentId === id) currentId = bottles[0]?.id || null;
+    save();
+    renderAll();
+  }
+}
+
+function renderJournal(){
+  const rated = bottles.filter(b => b.rating || b.note);
+  $('#journalList').innerHTML = rated.length ? rated.map(b => cardHtml(b)).join('') :
+    '<div class="empty"><strong>Aucune dégustation</strong>Notez une bouteille pour alimenter le journal.</div>';
+}
+
+function renderProfile(){
+  const totals = {fruite:0,boise:0,epice:0,gourmand:0,floral:0,fume:0,vegetal:0,mineral:0};
+  const counts = {};
+
+  bottles.forEach(b => {
+    Object.keys(totals).forEach(k => totals[k] += +(b.aromaProfile?.[k] || 0));
+    (b.aromaTags || []).forEach(t => counts[t] = (counts[t] || 0) + 1);
+  });
+
+  const n = bottles.length || 1;
+  Object.keys(totals).forEach(k => totals[k] = Math.round(totals[k] / n));
+
+  $('#profileRadar').innerHTML = radarSvg(totals);
+
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  $('#topAromas').innerHTML = top.length ? top.map(([t,c])=>'<span class="tag">'+escapeHtml(t)+' · '+c+'</span>').join('') :
+    '<span class="muted">Ajoutez des bouteilles pour construire votre profil.</span>';
+}
+
+function radarSvg(profile={}){
+  const labels = [['Fruité','fruite'],['Boisé','boise'],['Épicé','epice'],['Gourmand','gourmand'],['Floral','floral'],['Fumé','fume'],['Végétal','vegetal'],['Minéral','mineral']];
+  const size=260,cx=130,cy=130,r=82,n=labels.length;
+  const p=(i,l=10)=>{const a=-Math.PI/2+i*2*Math.PI/n,rr=r*l/10;return[cx+rr*Math.cos(a),cy+rr*Math.sin(a)]};
+  const grids=[2,4,6,8,10].map(l=>'<polygon class="grid" points="'+labels.map((_,i)=>p(i,l).join(',')).join(' ')+'"/>').join('');
+  const axes=labels.map((_,i)=>'<line class="axis" x1="'+cx+'" y1="'+cy+'" x2="'+p(i)[0]+'" y2="'+p(i)[1]+'"/>').join('');
+  const pts=labels.map(([_,k],i)=>p(i,Math.max(0,Math.min(10,Number(profile[k]||0)))));
+  const text=labels.map(([label],i)=>{const q=p(i,12.4);return'<text text-anchor="middle" x="'+q[0]+'" y="'+q[1]+'">'+label+'</text>'}).join('');
+  return '<svg viewBox="0 0 '+size+' '+size+'">'+grids+axes+'<polygon class="poly" points="'+pts.map(x=>x.join(',')).join(' ')+'"/>'+pts.map(x=>'<circle class="dot" cx="'+x[0]+'" cy="'+x[1]+'" r="4"/>').join('')+text+'</svg>';
+}
+
+function nav(page){
+  ['Explorer','Cave','Detail','Journal','Profile'].forEach(p => $('#page'+p).classList.toggle('active', p === page));
+  $$('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === page));
+  if(page === 'Cave') renderCave();
+  if(page === 'Journal') renderJournal();
+  if(page === 'Profile') renderProfile();
+}
+
+$$('[data-nav]').forEach(b => b.addEventListener('click', () => nav(b.dataset.nav)));
+
+$('#caveSearch').addEventListener('input', renderCave);
+$('#sortBtn').addEventListener('click', () => { sortDesc = !sortDesc; renderCave(); });
+$$('[data-filter]').forEach(b => b.addEventListener('click', () => {
+  caveFilter = b.dataset.filter;
+  $$('[data-filter]').forEach(x => x.classList.toggle('active', x === b));
+  renderCave();
+}));
+
+$('#exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(bottles,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'liquorne-cave.json';
+  a.click();
+});
+
+$('#notifBtn').addEventListener('click', () => toast('Aucune notification.'));
+$('#shareBtn').addEventListener('click', () => {
+  const b = bottles.find(x => x.id === currentId);
+  if(navigator.share && b) navigator.share({title:b.name,text:b.name,url:location.href});
+  else toast('Partage indisponible sur ce navigateur.');
+});
+
+$('#menuBtn').addEventListener('click', () => {
+  const b = bottles.find(x => x.id === currentId);
+  $('#sheetContent').innerHTML = b ?
+    '<div class="sheet-title">'+escapeHtml(b.name)+'</div><button data-rate-id="'+b.id+'">Noter</button><button data-delete-id="'+b.id+'">Supprimer</button><button id="closeSheetBtn">Fermer</button>' :
+    '<button id="closeSheetBtn">Fermer</button>';
+  $('#sheet').classList.add('show');
+  $('#closeSheetBtn')?.addEventListener('click', closeSheet);
+});
+
+function closeSheet(){ $('#sheet').classList.remove('show'); }
+
+function escapeHtml(v){
+  return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+function escapeAttr(v){ return escapeHtml(v).replace(/"/g,'&quot;'); }
+
+renderAll();
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
 </script>
 </body>
 </html>
