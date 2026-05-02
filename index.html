@@ -1,711 +1,161 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#061221" />
-  <meta name="description" content="Liquorne — votre cave, vos dégustations et vos découvertes de spiritueux." />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Liquorne" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./icons/icon-192.png" />
-  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <title>Liquorne — Prototype V1</title>
-  <style>
-    :root{
-      --bg:#061221;
-      --bg2:#0a1829;
-      --card:#101d2e;
-      --card2:#122235;
-      --line:rgba(229,190,111,.28);
-      --line2:rgba(255,255,255,.10);
-      --gold:#e9c36f;
-      --gold2:#f7d98d;
-      --text:#f7f1e8;
-      --muted:#aeb9c8;
-      --soft:#748196;
-      --green:#66c27c;
-      --blue:#7da7ff;
-      --danger:#f09b8f;
-      --shadow:0 24px 70px rgba(0,0,0,.42);
-      --radius:22px;
-      --navH:86px;
-      --max:480px;
-      --serif: Georgia, "Times New Roman", serif;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;background:#020814;color:var(--text);font-family:var(--sans)}
-    body{
-      background:
-        radial-gradient(circle at 50% -10%, rgba(234,196,113,.16), transparent 34%),
-        radial-gradient(circle at 20% 5%, rgba(72,111,170,.16), transparent 32%),
-        linear-gradient(180deg,#020814 0%,#061221 52%,#020814 100%);
-    }
-
-    button,input,select,textarea{font:inherit}
-    button{border:0;cursor:pointer;color:inherit;background:none}
-    input,select,textarea{width:100%;border:1px solid var(--line2);background:rgba(255,255,255,.045);color:var(--text);border-radius:16px;padding:14px 15px;outline:none}
-    input::placeholder,textarea::placeholder{color:#7f8ba0}
-    select{appearance:none}
-    textarea{min-height:98px;resize:vertical;line-height:1.45}
-    label{display:block;color:var(--muted);font-size:.84rem;margin:0 0 7px}
-    h1,h2,h3,p{margin:0}
-    h1,h2,h3,.brand-name,.serif{font-family:var(--serif)}
-    h1{font-size:2.15rem;line-height:1.04;font-weight:600;letter-spacing:-.02em}
-    h2{font-size:1.35rem;font-weight:600;margin:8px 0 14px}
-    h3{font-size:1.08rem;font-weight:600}
-    p{line-height:1.45}
-    .app{
-      width:min(100%,var(--max));
-      margin:0 auto;
-      min-height:100dvh;
-      position:relative;
-      background:
-        radial-gradient(circle at 80% 0%, rgba(237,197,109,.08), transparent 22%),
-        linear-gradient(180deg,#071426 0%,#071423 52%,#06111f 100%);
-      box-shadow:0 0 0 1px rgba(255,255,255,.03), var(--shadow);
-      overflow:hidden;
-    }
-    .page{
-      display:none;
-      min-height:100dvh;
-      padding:22px 18px calc(var(--navH) + 18px);
-      animation:fade .22s ease-out;
-    }
-    .page.active{display:block}
-    @keyframes fade{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      margin-bottom:18px;
-      min-height:58px;
-    }
-    .logo{
-      width:54px;height:54px;flex:0 0 54px;border-radius:18px;
-      background:url("./icons/liquorne-logo.png") center/cover no-repeat;
-      border:1px solid rgba(236,198,112,.45);
-      box-shadow:0 10px 28px rgba(233,195,111,.08);
-      overflow:hidden;
-    }
-    .brand{flex:1;min-width:0}
-    .brand-name{font-size:2rem;line-height:.98;letter-spacing:-.03em}
-    .brand-sub{margin-top:5px;color:var(--muted);font-size:.9rem}
-    .icon-btn{
-      width:46px;height:46px;border-radius:16px;
-      display:grid;place-items:center;
-      border:1px solid var(--line2);
-      background:rgba(255,255,255,.035);
-      color:var(--gold);
-      flex:0 0 46px;
-    }
-    .back-btn{margin-right:2px}
-    .bell{position:relative}
-    .bell:after{content:"";position:absolute;right:10px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
-    .search-row{display:flex;gap:10px;align-items:center;margin:16px 0 12px}
-    .search{
-      position:relative;flex:1
-    }
-    .search input{padding-left:44px;border-radius:18px;height:56px}
-    .search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--muted)}
-    .chips{display:flex;gap:10px;overflow:auto;padding:2px 0 10px;scrollbar-width:none}
-    .chips::-webkit-scrollbar{display:none}
-    .chip{
-      white-space:nowrap;
-      display:inline-flex;align-items:center;gap:8px;
-      min-height:38px;
-      padding:9px 13px;
-      border-radius:999px;
-      border:1px solid var(--line2);
-      background:rgba(255,255,255,.035);
-      color:var(--text);
-      font-weight:650;
-      font-size:.9rem;
-    }
-    .chip.active{border-color:rgba(233,195,111,.75);background:rgba(233,195,111,.12);color:#ffe2a2}
-    .stats{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:0;
-      margin:14px 0 26px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
-      overflow:hidden;
-    }
-    .stat{padding:18px 8px;text-align:center;position:relative}
-    .stat:not(:last-child):after{content:"";position:absolute;right:0;top:24%;height:52%;width:1px;background:var(--line2)}
-    .stat .num{font-size:1.65rem;font-weight:800;color:var(--text)}
-    .stat .lbl{margin-top:3px;color:var(--muted);font-size:.78rem}
-    .stat svg{color:var(--gold);margin-bottom:6px}
-
-    .section-head{
-      display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:22px 0 12px
-    }
-    .see{color:var(--gold);font-size:.88rem;font-weight:650}
-    .cards-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .reco-card{
-      min-height:204px;
-      border:1px solid var(--line2);
-      border-radius:20px;
-      background:
-        linear-gradient(120deg,rgba(12,24,39,.96),rgba(12,24,39,.55)),
-        radial-gradient(circle at 90% 20%,rgba(233,195,111,.18),transparent 42%);
-      padding:16px;
-      position:relative;
-      overflow:hidden;
-    }
-    .reco-card img{
-      position:absolute;right:6px;bottom:0;width:52%;height:78%;object-fit:contain;
-      filter:drop-shadow(0 16px 20px rgba(0,0,0,.55));
-    }
-    .reco-card h3{max-width:72%;font-size:1.14rem;line-height:1.08}
-    .meta{color:var(--gold);font-size:.82rem;margin-top:7px}
-    .desc{color:var(--muted);font-size:.82rem;margin-top:12px;max-width:70%}
-    .rating{display:inline-flex;align-items:center;gap:6px;color:var(--gold);font-weight:800;margin-top:16px}
-    .small-note{color:var(--muted);font-size:.75rem;margin-left:7px}
-    .h-scroll{display:flex;gap:12px;overflow:auto;padding-bottom:6px;scrollbar-width:none}
-    .h-scroll::-webkit-scrollbar{display:none}
-    .mini-card{
-      flex:0 0 128px;
-      min-height:128px;
-      border:1px solid var(--line2);
-      border-radius:18px;
-      background:rgba(255,255,255,.035);
-      padding:10px;
-      display:grid;
-      grid-template-columns:42px 1fr;
-      gap:8px;
-      align-items:center;
-    }
-    .mini-card img,.list-card img,.journal-card img{width:100%;height:86px;object-fit:contain;filter:drop-shadow(0 10px 16px rgba(0,0,0,.45))}
-    .mini-card h3{font-size:.9rem;line-height:1.1}
-    .mini-card .meta{font-size:.72rem;margin-top:4px}
-    .mini-card .rating{font-size:.9rem;margin-top:6px}
-    .recent-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .recent-card{
-      border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.035);
-      padding:10px;min-height:112px;display:grid;grid-template-columns:38px 1fr;gap:8px;align-items:center;
-    }
-    .recent-card img{width:38px;height:76px;object-fit:contain}
-    .recent-card h3{font-size:.78rem;line-height:1.1}
-    .recent-card .meta{font-size:.68rem;color:var(--muted)}
-
-    .bottom-nav{
-      position:absolute;left:18px;right:18px;bottom:12px;height:72px;
-      border:1px solid var(--line2);
-      background:rgba(5,13,24,.88);
-      backdrop-filter:blur(18px);
-      border-radius:24px;
-      display:grid;grid-template-columns:1fr 1fr 78px 1fr 1fr;align-items:center;
-      z-index:50;
-      box-shadow:0 -14px 40px rgba(0,0,0,.24);
-    }
-    .nav-item{
-      display:grid;place-items:center;gap:3px;color:#bcc6d5;font-size:.75rem;font-weight:650;
-    }
-    .nav-item.active{color:var(--gold)}
-    .nav-plus{
-      width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#f8dc90,#d7a94e);
-      color:#071221;font-size:2rem;font-weight:900;display:grid;place-items:center;margin:auto;
-      box-shadow:0 0 32px rgba(233,195,111,.38);
-      transform:translateY(-14px);
-    }
-
-    .hero-title{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
-    .hero-title.center{text-align:center;display:block}
-    .hero-title .sub{color:var(--muted);margin-top:6px}
-    .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 16px}
-    .quick-card{
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
-      border-radius:22px;min-height:176px;padding:20px 14px;text-align:center;display:grid;place-items:center;
-    }
-    .quick-card .big-icon{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--gold);margin-bottom:8px}
-    .info-card,.panel{
-      border:1px solid var(--line2);
-      background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.025));
-      border-radius:22px;
-      padding:16px;
-    }
-    .info-card.goldline{border-color:var(--line)}
-    .steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:start;margin:20px 0}
-    .step{text-align:center;color:var(--muted);font-size:.82rem;position:relative}
-    .step .circle{margin:0 auto 8px;width:52px;height:52px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--gold)}
-    .step strong{display:block;color:var(--text);font-size:.92rem}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .form-grid .full{grid-column:1/-1}
-    .btn{
-      min-height:56px;border-radius:17px;padding:13px 16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;
-    }
-    .btn.primary{background:linear-gradient(180deg,#f9dc8d,#d5a14a);color:#061221;box-shadow:0 12px 24px rgba(215,161,74,.18)}
-    .btn.secondary{border:1px solid var(--line);color:var(--gold);background:rgba(255,255,255,.02)}
-    .btn-row{display:grid;gap:12px;margin-top:18px}
-
-    .match-card{display:grid;grid-template-columns:1fr 88px;gap:12px;align-items:center;margin-bottom:18px}
-    .confidence{width:72px;height:72px;border-radius:50%;border:7px solid rgba(102,194,124,.85);display:grid;place-items:center;margin:auto;color:#d5ffe1;font-weight:900}
-    .detected{display:grid;grid-template-columns:138px 1fr;gap:16px;margin-bottom:18px;align-items:center}
-    .detected img{width:138px;height:138px;border-radius:18px;object-fit:cover}
-    .fields{display:grid;gap:11px;margin-top:12px}
-    .field-row{display:grid;grid-template-columns:138px 1fr 30px;gap:10px;align-items:center}
-    .field-row .flabel{display:flex;align-items:center;gap:9px;color:var(--text)}
-    .field-row .value{border:1px solid var(--line2);border-radius:14px;padding:12px 13px;background:rgba(255,255,255,.035);color:var(--text)}
-    .edit{color:var(--gold)}
-    .tag-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}
-    .tag{border:1px solid var(--line2);border-radius:999px;padding:8px 11px;color:#f4d48b;background:rgba(255,255,255,.025);font-size:.83rem;font-weight:650}
-    .note-box{margin-top:13px;border:1px solid var(--line2);border-radius:16px;padding:13px;color:var(--muted);font-size:.86rem}
-
-    .product-top{display:grid;grid-template-columns:42% 1fr;gap:16px;margin-top:4px}
-    .product-img{border-radius:22px;overflow:hidden;min-height:268px;background:#0c1726}
-    .product-img img{width:100%;height:100%;object-fit:cover;display:block}
-    .product-info h1{font-size:2rem}
-    .split-rating{display:grid;grid-template-columns:1fr 1px 1fr;gap:12px;margin:18px 0;color:var(--muted)}
-    .split-rating .big{font-size:2rem;color:var(--text);font-weight:800}
-    .split-rating .line{background:var(--line2)}
-    .status-pill{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid var(--line2);border-radius:16px;padding:12px;background:rgba(255,255,255,.035);margin-top:14px}
-    .radar-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center}
-    .radar svg{width:100%;height:auto;overflow:visible}
-    .radar text{fill:var(--text);font-size:10px}
-    .radar .grid{stroke:rgba(255,255,255,.13);fill:none}
-    .radar .axis{stroke:rgba(233,195,111,.28)}
-    .radar .poly{fill:rgba(233,195,111,.34);stroke:var(--gold);stroke-width:2}
-    .radar .dot{fill:var(--gold2);stroke:#4b3414;stroke-width:1}
-    .taste-dots{display:flex;gap:7px;margin:10px 0 16px}
-    .taste-dots i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.12)}
-    .taste-dots i.on{background:var(--gold)}
-    .attr-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-    .attr{border:1px solid var(--line2);border-radius:13px;padding:9px 10px;color:var(--muted);font-size:.8rem}
-
-    .cellar-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
-    .cellar-stats .info-card{display:grid;grid-template-columns:1fr 1fr;padding:14px 8px}
-    .cellar-stats .stat{padding:8px}
-    .tabs{display:flex;gap:10px;overflow:auto;padding-bottom:12px;scrollbar-width:none}
-    .tabs::-webkit-scrollbar{display:none}
-    .list{display:grid;gap:10px}
-    .list-card{
-      display:grid;grid-template-columns:74px 1fr 64px;gap:12px;align-items:center;
-      border:1px solid var(--line2);border-radius:18px;background:rgba(255,255,255,.035);padding:11px;
-    }
-    .list-card h3{font-size:1.08rem}
-    .status{display:inline-flex;border-radius:999px;padding:5px 9px;font-weight:800;font-size:.75rem}
-    .status.open{background:rgba(102,194,124,.18);color:#b8ffc6;border:1px solid rgba(102,194,124,.4)}
-    .status.todo{background:rgba(233,195,111,.16);color:#ffe0a0;border:1px solid rgba(233,195,111,.4)}
-    .status.wish{background:rgba(125,167,255,.18);color:#cdddff;border:1px solid rgba(125,167,255,.4)}
-    .right-rating{text-align:right;color:var(--gold);font-weight:900;font-size:1.05rem}
-
-    .journal-list{display:grid;grid-template-columns:76px 1fr;gap:10px}
-    .timeline{position:relative}
-    .timeline:before{content:"";position:absolute;top:22px;bottom:22px;left:44px;width:1px;background:var(--line)}
-    .date{position:relative;min-height:138px;color:var(--text);font-weight:800;font-size:1.1rem}
-    .date span{display:block;color:var(--muted);font-weight:500;font-size:.78rem}
-    .date:after{content:"";position:absolute;left:38px;top:8px;width:13px;height:13px;border:2px solid var(--gold);border-radius:50%;background:var(--bg)}
-    .journal-cards{display:grid;gap:10px}
-    .journal-card{
-      border:1px solid var(--line2);border-radius:18px;background:rgba(255,255,255,.035);padding:12px;
-      display:grid;grid-template-columns:72px 1fr 48px;gap:10px;min-height:138px;
-    }
-    .journal-card h3{font-size:1.02rem}
-    .journal-card p{color:var(--muted);font-size:.8rem;margin-top:7px}
-    .journal-card .right-rating{font-size:1rem}
-
-    .profile-hero{display:grid;grid-template-columns:88px 1fr;gap:16px;align-items:center;margin-bottom:14px}
-    .avatar{width:88px;height:88px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle at 60% 40%,rgba(233,195,111,.24),transparent 50%),#0c1726;position:relative}
-    .avatar:before{content:"";position:absolute;left:23px;top:20px;width:34px;height:44px;border-left:2px solid var(--gold);border-radius:50%;transform:rotate(18deg)}
-    .profile-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:12px}
-    .side-stack{display:grid;gap:12px}
-    .pref-icons{display:flex;justify-content:space-between;text-align:center;color:var(--gold);font-weight:800}
-    .flags{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;font-size:.68rem;color:var(--muted)}
-    .flag{font-size:1.4rem}
-    .aromas{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;text-align:center}
-    .aroma-icon{font-size:1.8rem}
-    .aromas .pct{color:var(--gold);font-weight:800;font-size:.82rem}
-    .profile-recos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-
-    @media (max-width:380px){
-      .page{padding-left:14px;padding-right:14px}
-      .cards-2{grid-template-columns:1fr}
-      .reco-card{min-height:170px}
-      .radar-wrap,.product-top,.detected,.profile-grid{grid-template-columns:1fr}
-      .product-img{min-height:230px}
-      .field-row{grid-template-columns:1fr}
-      .recent-row{grid-template-columns:1fr}
-      .bottom-nav{left:12px;right:12px}
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="theme-color" content="#061221"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<link rel="manifest" href="./manifest.webmanifest"/>
+<link rel="icon" href="./icons/icon-192.png"/>
+<link rel="apple-touch-icon" href="./icons/icon-192.png"/>
+<title>Liquorne</title>
+<style>
+:root{--bg:#061221;--card:#101d2e;--card2:#132338;--gold:#e8c36f;--gold2:#f6d98b;--text:#f8f1e7;--muted:#b5bfcd;--soft:#7d899b;--line:rgba(232,195,111,.34);--line2:rgba(255,255,255,.12);--green:#65c783;--blue:#82a8ff;--nav:78px;--serif:Georgia,"Times New Roman",serif;--sans:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:var(--sans);background:#020814;color:var(--text)}
+body{background:radial-gradient(circle at 50% -15%,rgba(232,195,111,.14),transparent 32%),linear-gradient(180deg,#020814,#061221 55%,#020814)}
+button,input,select,textarea{font:inherit}
+button{border:0;background:none;color:inherit}
+input,select,textarea{width:100%;min-height:52px;border:1px solid var(--line2);border-radius:16px;background:rgba(255,255,255,.045);color:var(--text);padding:13px 14px;outline:none}
+input::placeholder,textarea::placeholder{color:#7f8ba0}
+textarea{min-height:96px;resize:vertical;line-height:1.45}
+select{appearance:none}
+h1,h2,h3,p{margin:0}
+h1,h2,h3,.brand-title{font-family:var(--serif)}
+h1{font-size:clamp(1.8rem,7vw,2.45rem);line-height:1.04;font-weight:600;letter-spacing:-.025em}
+h2{font-size:1.33rem;margin:0 0 13px}
+h3{font-size:1.05rem}
+.app{position:relative;max-width:520px;margin:0 auto;min-height:100dvh;background:radial-gradient(circle at 80% 0%,rgba(232,195,111,.08),transparent 28%),linear-gradient(180deg,#071426,#061221 70%,#050d18);overflow-x:hidden}
+.page{display:none;min-height:100dvh;padding:calc(18px + env(safe-area-inset-top)) 18px calc(var(--nav) + 30px + env(safe-area-inset-bottom))}
+.page.active{display:block}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:18px;min-height:60px}
+.logo{width:58px;height:58px;flex:0 0 58px;border-radius:18px;background:url("./icons/liquorne-logo.png"),url("./icons/liquorne-logo.svg");background-size:cover;background-position:center;border:1px solid rgba(232,195,111,.46);box-shadow:0 10px 28px rgba(232,195,111,.08)}
+.brand{flex:1;min-width:0}.brand-title{font-size:2rem;line-height:.98;letter-spacing:-.035em}.brand-sub{margin-top:6px;color:var(--muted);font-size:.92rem;line-height:1.3}
+.icon-btn{width:48px;height:48px;flex:0 0 48px;border-radius:17px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(255,255,255,.035);color:var(--gold)}
+.bell{position:relative}.bell:after{content:"";position:absolute;right:11px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.search-row{display:flex;gap:10px;align-items:center;margin:16px 0 14px}.search{position:relative;flex:1;min-width:0}.search input{padding-left:46px;border-radius:19px;height:58px}.search svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);width:22px}
+.chips,.tabs,.h-scroll{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:2px 0 10px}.chips::-webkit-scrollbar,.tabs::-webkit-scrollbar,.h-scroll::-webkit-scrollbar{display:none}
+.chip{min-height:40px;padding:9px 14px;border-radius:999px;white-space:nowrap;border:1px solid var(--line2);background:rgba(255,255,255,.035);color:var(--text);display:inline-flex;align-items:center;gap:8px;font-weight:750}.chip.active{border-color:rgba(232,195,111,.85);color:#ffe0a0;background:rgba(232,195,111,.11)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.022));border-radius:23px;overflow:hidden;margin:14px 0 26px}.stat{text-align:center;padding:17px 6px;position:relative}.stat:not(:last-child):after{content:"";position:absolute;right:0;top:25%;height:50%;width:1px;background:var(--line2)}.num{font-size:1.55rem;font-weight:900}.lbl{font-size:.76rem;color:var(--muted);margin-top:3px}
+.panel,.empty,.card{border:1px solid var(--line2);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.052),rgba(255,255,255,.025));box-shadow:0 18px 45px rgba(0,0,0,.16)}
+.empty{padding:18px;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.onboard{padding:22px;border-color:var(--line);background:radial-gradient(circle at 80% 0%,rgba(232,195,111,.11),transparent 35%),linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025))}.onboard p{color:var(--muted);margin-top:8px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.btn{min-height:56px;border-radius:17px;padding:13px 15px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center}.primary{background:linear-gradient(180deg,#f9dd90,#d6a24b);color:#061221}.secondary{border:1px solid var(--line);background:rgba(255,255,255,.025);color:var(--gold)}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:24px 0 13px}.see{color:var(--gold);font-weight:800;font-size:.9rem;white-space:nowrap}
+.bottom-nav{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100% - 28px),492px);height:var(--nav);border:1px solid var(--line2);border-radius:25px;background:rgba(5,13,24,.92);backdrop-filter:blur(18px);display:grid;grid-template-columns:1fr 1fr 82px 1fr 1fr;align-items:center;z-index:100;box-shadow:0 -18px 45px rgba(0,0,0,.25)}
+.nav-item{display:grid;place-items:center;gap:4px;color:#b9c3d2;font-size:.74rem;font-weight:750}.nav-item.active{color:var(--gold)}.nav-plus{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;margin:auto;transform:translateY(-15px);background:linear-gradient(180deg,#f9dd90,#d6a24b);color:#061221;font-size:2rem;font-weight:1000;box-shadow:0 0 32px rgba(232,195,111,.36)}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.quick-card{padding:22px 14px;text-align:center;min-height:174px;display:grid;place-items:center;border-color:var(--line)}.big-icon{width:70px;height:70px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);color:var(--gold);margin-bottom:8px;font-size:1.6rem}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}.step{text-align:center;color:var(--muted);font-size:.8rem}.circle{width:50px;height:50px;border-radius:50%;border:1px solid var(--line);color:var(--gold);display:grid;place-items:center;margin:0 auto 8px}.step strong{display:block;color:var(--text);font-size:.9rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}label{display:block;color:var(--muted);font-size:.84rem;margin:0 0 7px}.btn-row{display:grid;gap:12px;margin-top:16px}.photo-preview{display:none;margin-top:14px;border-radius:18px;overflow:hidden;border:1px solid var(--line2)}.photo-preview img{width:100%;max-height:210px;object-fit:cover;display:block}
+.bottle,.thumb{background:radial-gradient(circle at 50% 15%,rgba(232,195,111,.26),transparent 22%),linear-gradient(180deg,#1a2738,#091523);border:1px solid var(--line2);position:relative;overflow:hidden}.bottle:before,.thumb:before{content:"";position:absolute;left:48%;top:16%;width:24%;height:65%;transform:translateX(-50%);border-radius:10px 10px 12px 12px;background:linear-gradient(180deg,#d6a24b,#743615);box-shadow:inset 0 0 0 2px rgba(255,255,255,.16)}.bottle:after,.thumb:after{content:"LIQUORNE";position:absolute;left:50%;top:52%;transform:translateX(-50%);font-size:.45rem;color:#fff;background:rgba(5,10,16,.74);border:1px solid rgba(232,195,111,.55);padding:5px 6px;border-radius:4px;letter-spacing:.08em}
+.bottle{height:140px;border-radius:18px}.thumb{height:86px;border-radius:14px}
+.list{display:grid;gap:10px}.list-card{display:grid;grid-template-columns:68px 1fr 62px;gap:12px;align-items:center;padding:11px}.list-card h3{font-size:1.04rem;line-height:1.12}.meta{color:var(--gold);font-size:.84rem;margin-top:6px}.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tag{border:1px solid var(--line2);border-radius:999px;padding:8px 11px;color:#f2d38b;background:rgba(255,255,255,.025);font-weight:700;font-size:.82rem}.right{text-align:right;color:var(--gold);font-weight:1000}.status{display:inline-flex;border-radius:999px;padding:5px 9px;font-weight:850;font-size:.74rem}.open{background:rgba(101,199,131,.18);color:#b8ffc9;border:1px solid rgba(101,199,131,.4)}.todo{background:rgba(232,195,111,.16);color:#ffe0a0;border:1px solid rgba(232,195,111,.4)}.wish{background:rgba(130,168,255,.18);color:#d0ddff;border:1px solid rgba(130,168,255,.4)}
+.match{display:grid;grid-template-columns:1fr 84px;gap:12px;align-items:center;margin-bottom:18px;padding:16px}.confidence{width:70px;height:70px;border-radius:50%;border:7px solid rgba(101,199,131,.9);display:grid;place-items:center;color:#ddffe7;font-weight:1000}.detected{display:grid;grid-template-columns:122px 1fr;gap:16px;align-items:center}.fields{display:grid;gap:10px;margin-top:16px}.field-row{display:grid;grid-template-columns:130px 1fr 26px;gap:9px;align-items:center}.value{border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.035);padding:12px 13px}
+.product-top{display:grid;grid-template-columns:41% 1fr;gap:16px}.product-img{height:250px;border-radius:22px}.product-info h1{font-size:1.75rem}.split{display:grid;grid-template-columns:1fr 1px 1fr;gap:12px;margin:16px 0;color:var(--muted)}.split .big{font-size:1.6rem;color:var(--text);font-weight:1000}.split .line{background:var(--line2)}.status-pill{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line2);border-radius:16px;padding:12px;background:rgba(255,255,255,.035);margin-top:10px}
+.radar-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:center}.radar svg{width:100%;height:auto;overflow:visible}.radar text{fill:var(--text);font-size:10px}.grid{stroke:rgba(255,255,255,.13);fill:none}.axis{stroke:rgba(232,195,111,.28)}.poly{fill:rgba(232,195,111,.34);stroke:var(--gold);stroke-width:2}.dot{fill:var(--gold2);stroke:#4b3414;stroke-width:1}.dots{display:flex;gap:7px;margin:10px 0 16px}.dots i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.12)}.dots i.on{background:var(--gold)}.attr-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.attr{border:1px solid var(--line2);border-radius:13px;padding:9px 10px;color:var(--muted);font-size:.8rem}
+.cellar-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}.cellar-stats .panel{display:grid;grid-template-columns:1fr 1fr;padding:12px 6px}
+.profile-hero{display:grid;grid-template-columns:80px 1fr;gap:15px;align-items:center;margin:14px 0}.avatar{width:80px;height:80px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle at 60% 40%,rgba(232,195,111,.24),transparent 50%),#0c1726}.profile-grid{display:grid;grid-template-columns:1.25fr .95fr;gap:12px}.side-stack{display:grid;gap:12px}.pref{display:flex;justify-content:space-between;text-align:center;color:var(--gold);font-weight:900}.aromas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}.pct{color:var(--gold);font-weight:900}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav) + 28px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:rgba(8,18,32,.96);border:1px solid var(--line);border-radius:16px;padding:12px 16px;color:var(--text);z-index:200;transition:.2s;width:min(92%,430px);text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:420px){.page{padding-left:14px;padding-right:14px}.brand-title{font-size:1.65rem}.actions,.quick-grid,.radar-wrap,.product-top,.detected,.profile-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}.bottom-nav{width:calc(100% - 20px)}.product-img{height:220px}}
+</style>
 </head>
 <body>
-  <main class="app" id="app">
-    <section class="page active" data-page="explorer">
-      <div class="topbar">
-        <div class="logo"></div>
-        <div class="brand">
-          <div class="brand-name">Liquorne</div>
-          <div class="brand-sub">Votre cave, vos dégustations, vos découvertes.</div>
-        </div>
-        <button class="icon-btn bell" aria-label="Notifications">♡</button>
-      </div>
+<main class="app">
+<section class="page active" data-page="explorer">
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre cave, vos dégustations, vos découvertes.</div></div><button class="icon-btn bell" data-soon></button></div>
+  <div class="search-row"><div class="search"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Rechercher dans votre cave..."/></div><button class="icon-btn" data-soon>☰</button></div>
+  <div class="chips"><button class="chip active">Whisky</button><button class="chip">Rhum</button><button class="chip">Tequila</button><button class="chip">Cognac</button><button class="chip">Gin</button></div>
+  <div class="stats"><div class="stat"><div>🍾</div><div class="num" id="stOwned">0</div><div class="lbl">Possédées</div></div><div class="stat"><div>🥃</div><div class="num" id="stTasted">0</div><div class="lbl">Goûtées</div></div><div class="stat"><div>🔖</div><div class="num" id="stWish">0</div><div class="lbl">Wishlist</div></div><div class="stat"><div>☆</div><div class="num" id="stAvg">—</div><div class="lbl">Note moyenne</div></div></div>
+  <div class="panel onboard" id="onboard"><h2>Votre cave commence ici</h2><p>Ajoutez votre première bouteille par photo, import galerie ou saisie manuelle. Liquorne gardera ensuite votre historique, vos notes et votre palette aromatique.</p><div class="actions"><button class="btn primary" data-nav="add">+ Ajouter</button><button class="btn secondary" data-nav="profil">Profil gustatif</button></div></div>
+  <div class="section-head"><h2>À redécouvrir</h2><button class="see" data-nav="cave">Voir tout ›</button></div><div id="rediscover" class="h-scroll"></div>
+  <div class="section-head"><h2>Derniers ajouts</h2><button class="see" data-nav="cave">Voir tout ›</button></div><div id="recent" class="h-scroll"></div>
+</section>
 
-      <div class="search-row">
-        <div class="search">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input placeholder="Rechercher un spiritueux, une marque, un pays..." />
-        </div>
-        <button class="icon-btn">☷</button>
-      </div>
+<section class="page" data-page="add">
+  <div class="topbar"><button class="icon-btn" data-nav="explorer">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Ajouter une bouteille</h1><p class="brand-sub">Ajoutez une nouvelle bouteille à votre cave.</p></div><button class="icon-btn bell" data-soon></button></div>
+  <h2>Ajoutez rapidement</h2>
+  <div class="quick-grid"><label class="panel quick-card" for="cameraInput"><span class="big-icon">📷</span><h3>Prendre une photo</h3><p class="brand-sub">Photo directe de l’étiquette.</p></label><label class="panel quick-card" for="galleryInput"><span class="big-icon">🖼️</span><h3>Importer depuis la galerie</h3><p class="brand-sub">Sélection depuis vos photos.</p></label><input id="cameraInput" type="file" accept="image/*" capture="environment" hidden/><input id="galleryInput" type="file" accept="image/*" hidden/></div>
+  <div class="photo-preview" id="photoPreview"><img alt="Photo sélectionnée"/></div>
+  <div class="panel" style="padding:16px;margin-bottom:20px">✨ Reconnaissance de l’étiquette et recherche en fond pour <strong style="color:var(--gold)">pré-remplir automatiquement</strong>.</div>
+  <h2>Comment ça marche</h2><div class="steps"><div class="step"><div class="circle">1</div><strong>Photo</strong>Prenez ou importez</div><div class="step"><div class="circle">2</div><strong>Analyse</strong>Recherche en fond</div><div class="step"><div class="circle">3</div><strong>Validation</strong>Vous vérifiez</div></div>
+  <h2>Saisie manuelle</h2>
+  <form id="addForm" class="form-grid"><div class="full"><label>Nom</label><input id="fName" placeholder="Ex. Depaz 2003 Brut de Fût" required/></div><div><label>Marque</label><input id="fBrand" placeholder="Ex. Depaz"/></div><div><label>Type</label><select id="fType"><option>Whisky</option><option>Rhum</option><option>Tequila</option><option>Cognac</option><option>Gin</option><option>Autre</option></select></div><div><label>Pays</label><input id="fCountry" placeholder="Ex. Martinique"/></div><div><label>ABV (%)</label><input id="fAbv" inputmode="decimal" placeholder="Ex. 45"/></div><div class="full"><label>Arômes</label><input id="fAromas" placeholder="vanille, caramel, bois, fruits secs"/></div><div class="full btn-row"><button class="btn primary" type="button" id="runAnalysis">✨ Lancer l’analyse</button><button class="btn secondary" type="submit">Enregistrer manuellement</button></div></form>
+</section>
 
-      <div class="chips">
-        <button class="chip active">🥃 Whisky</button><button class="chip">🌾 Rhum</button><button class="chip">🌵 Tequila</button><button class="chip">🍷 Cognac</button><button class="chip">🌿 Gin</button>
-      </div>
+<section class="page" data-page="prefill">
+  <div class="topbar"><button class="icon-btn" data-nav="add">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Pré-remplissage détecté</h1></div><button class="icon-btn bell" data-soon></button></div>
+  <div class="panel match"><div><h3>Correspondance probable trouvée</h3><p class="brand-sub">Analyse photo + recherche web simulée pour cette V2.</p></div><div><div class="confidence">92%</div><p class="brand-sub" style="text-align:center">Confiance</p></div></div>
+  <div class="panel" style="padding:16px"><div class="detected"><div class="bottle" id="detectedPreview"></div><div><h1 id="detectedTitle">Depaz 2003 Brut de Fût</h1><div class="tag-row"><span class="tag">Rhum</span><span class="tag">Brut de fût</span></div></div></div><div class="fields"><div class="field-row"><div>Nom</div><div class="value" id="pvName">Depaz 2003 Brut de Fût</div><button class="see">✎</button></div><div class="field-row"><div>Marque</div><div class="value" id="pvBrand">Depaz</div><button class="see">✎</button></div><div class="field-row"><div>Type</div><div class="value" id="pvType">Rhum</div><button class="see">✎</button></div><div class="field-row"><div>Pays</div><div class="value" id="pvCountry">Martinique</div><button class="see">✎</button></div><div class="field-row"><div>ABV</div><div class="value" id="pvAbv">45%</div><button class="see">✎</button></div></div><h2 style="margin-top:18px">Arômes suggérés</h2><div class="tag-row" id="pvAromas"></div><div class="empty" style="margin-top:14px">Ces informations sont proposées automatiquement. Vérifiez-les avant validation.</div></div>
+  <div class="btn-row"><button class="btn primary" id="validatePrefill">✓ Valider et continuer</button><button class="btn secondary" data-nav="add">Corriger</button></div>
+</section>
 
-      <div class="stats">
-        <div class="stat">🍾<div class="num" id="statOwned">0</div><div class="lbl">Possédées</div></div>
-        <div class="stat">🥂<div class="num" id="statTasted">0</div><div class="lbl">Goûtées</div></div>
-        <div class="stat">🔖<div class="num" id="statWish">0</div><div class="lbl">Wishlist</div></div>
-        <div class="stat">☆<div class="num">4.8</div><div class="lbl">Note moyenne</div></div>
-      </div>
+<section class="page" data-page="detail">
+  <div class="topbar"><button class="icon-btn" data-nav="cave">←</button><div class="brand" style="text-align:center"><div class="brand-title" style="font-size:1.5rem">Liquorne</div></div><button class="icon-btn" data-soon>↗</button><button class="icon-btn" data-soon>⋯</button></div>
+  <div class="product-top"><div class="bottle product-img" id="detailImage"></div><div class="product-info"><h1 id="detailName">Votre bouteille</h1><div class="meta" id="detailOrigin">—</div><div class="meta" id="detailType">—</div><p class="brand-sub" id="detailAbv">—</p><div class="split"><div><div class="big" id="detailAvg">—</div><div>Note moyenne</div></div><div class="line"></div><div><div class="big" id="detailMine">—</div><div>Ma note</div></div></div><div class="status-pill"><span>🍾 Possédée</span><span>›</span></div></div></div>
+  <div class="panel" style="padding:16px;margin-top:18px"><h2>Palette aromatique</h2><div class="radar-wrap"><div class="radar" id="radarDetail"></div><div><p class="brand-sub">Intensité aromatique</p><div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><p class="brand-sub">Arômes principaux</p><div class="tag-row" id="detailTags"></div></div></div></div>
+  <div class="panel" style="padding:16px;margin-top:14px"><div class="section-head" style="margin-top:0"><h2>Mes notes</h2><button class="see" data-soon>Modifier</button></div><textarea id="tasteNote" placeholder="Ajoutez vos impressions : nez, bouche, finale, contexte..."></textarea><div class="btn-row"><button class="btn secondary" id="saveTaste">Enregistrer la note</button></div></div>
+  <div class="actions"><button class="btn secondary" id="rateBottle">☆ Noter</button><button class="btn secondary" id="toggleOwned">🍾 Statut</button></div>
+</section>
 
-      <div class="section-head"><h2>Découvrir pour vous</h2><button class="see">Voir tout ›</button></div>
-      <div class="cards-2">
-        <article class="reco-card" data-open-detail>
-          <h3>Macallan 12<br/>Sherry Oak</h3>
-          <div class="meta">Speyside · Écosse · 40%</div>
-          <p class="desc">Élégant et complexe, notes de fruits secs, épices douces et chêne.</p>
-          <div class="rating">★ 4.8 <span class="small-note">1 268 avis</span></div>
-          <img alt="" src="https://images.unsplash.com/photo-1606170034767-cbe66b2b157a?q=80&w=260&auto=format&fit=crop" />
-        </article>
-        <article class="reco-card" data-open-detail>
-          <h3>Zacapa 23<br/>Solera</h3>
-          <div class="meta">Rhum · Guatemala · 40%</div>
-          <p class="desc">Riche et gourmand, avec des arômes de caramel, vanille et cacao.</p>
-          <div class="rating">★ 4.7 <span class="small-note">842 avis</span></div>
-          <img alt="" src="https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=260&auto=format&fit=crop" />
-        </article>
-      </div>
+<section class="page" data-page="cave">
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Ma cave, mon patrimoine.</div></div><button class="icon-btn bell" data-soon></button></div><h1>Ma cave</h1>
+  <div class="cellar-stats"><div class="panel"><div class="stat"><div class="num" id="cTotal">0</div><div class="lbl">Bouteilles</div></div><div class="stat"><div class="num" id="cOpen">0</div><div class="lbl">Ouvertes</div></div></div><div class="panel"><div class="stat"><div class="num" id="cWish">0</div><div class="lbl">Wishlist</div></div><div class="stat"><div class="num" id="cAvg">—</div><div class="lbl">Note moyenne</div></div></div></div>
+  <div class="tabs"><button class="chip active" data-cave-filter="all">Toutes</button><button class="chip" data-cave-filter="open">Ouvertes</button><button class="chip" data-cave-filter="todo">À goûter</button><button class="chip" data-cave-filter="wish">Wishlist</button></div>
+  <div class="search-row"><div class="search"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="caveSearch" placeholder="Rechercher une bouteille..."/></div><button class="chip" id="sortBtn">↕ Trier</button></div><div id="caveList" class="list"></div>
+</section>
 
-      <div class="section-head"><h2>À redécouvrir</h2><button class="see">Voir tout ›</button></div>
-      <div class="h-scroll" id="rediscover"></div>
+<section class="page" data-page="journal">
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Journal de dégustation</div></div><button class="icon-btn bell" data-soon></button></div>
+  <div class="panel" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;margin-bottom:14px"><div class="stat"><div class="num" id="jCount">0</div><div class="lbl">Dégustations</div></div><div class="stat"><div class="num" id="jAvg">—</div><div class="lbl">Note moyenne</div></div></div>
+  <button class="btn primary" style="width:100%;margin-bottom:14px" data-nav="add">+ Ajouter une dégustation</button><div id="journalEmpty" class="empty"><strong>Aucune dégustation</strong>Vos notes apparaîtront ici après avoir noté une bouteille.</div><div id="journalCards" class="list"></div>
+</section>
 
-      <div class="section-head"><h2>Derniers ajouts</h2><button class="see">Voir tout ›</button></div>
-      <div class="recent-row" id="recent"></div>
-    </section>
+<section class="page" data-page="profil">
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre signature aromatique.</div></div><button class="icon-btn bell" data-soon></button></div><h1>Mon profil gustatif</h1><p class="brand-sub">Construit automatiquement à partir de votre cave et de vos dégustations.</p>
+  <div class="panel profile-hero"><div class="avatar"></div><div><p class="brand-sub">Ma signature gustative</p><h2 id="tasteSignature" style="color:var(--gold);font-size:1.5rem;margin:4px 0 8px">À construire</h2><p id="tasteSentence">Ajoutez quelques bouteilles pour faire apparaître vos préférences.</p><div class="attr-row"><span class="attr" id="pAvg">★ —</span><span class="attr" id="pTasted">0 dégustation</span><span class="attr" id="pWishlist">0 wishlist</span></div></div></div>
+  <div class="profile-grid"><div class="panel" style="padding:14px"><h2>Ma palette aromatique</h2><div class="radar" id="radarProfile"></div></div><div class="side-stack"><div class="panel" style="padding:14px"><h3>Types préférés</h3><div id="prefTypes" class="pref"></div></div><div class="panel" style="padding:14px"><h3>ABV moyen</h3><div id="pAbv" style="font-size:2rem;font-family:var(--serif)">—</div><p class="brand-sub">Basé sur votre cave</p></div></div></div>
+  <div class="panel" style="padding:14px;margin-top:12px"><h2>Top arômes</h2><div class="aromas" id="topAromas"></div></div>
+</section>
 
-    <section class="page" data-page="add">
-      <div class="topbar">
-        <button class="icon-btn back-btn" data-nav="explorer">←</button>
-        <div class="brand hero-title center">
-          <h1>Ajouter une bouteille</h1>
-          <p class="sub">Ajoutez une nouvelle bouteille à votre cave.</p>
-        </div>
-        <button class="icon-btn bell">♡</button>
-      </div>
-
-      <h2>Ajoutez rapidement</h2>
-      <div class="quick-grid">
-        <label class="quick-card" for="cameraInput">
-          <span class="big-icon">📷</span>
-          <h3>Prendre une photo</h3>
-          <p class="brand-sub">Prenez une photo de l’étiquette pour analyser la bouteille</p>
-        </label>
-        <label class="quick-card" for="galleryInput">
-          <span class="big-icon">🖼️</span>
-          <h3>Importer depuis la galerie</h3>
-          <p class="brand-sub">Sélectionnez une photo depuis votre galerie</p>
-        </label>
-        <input id="cameraInput" type="file" accept="image/*" capture="environment" hidden />
-        <input id="galleryInput" type="file" accept="image/*" hidden />
-      </div>
-
-      <div class="info-card goldline">✨ Notre IA reconnaît l’étiquette et recherche les informations sur le web pour <span style="color:var(--gold);font-weight:800">pré-remplir automatiquement</span> les détails.</div>
-
-      <h2>Comment ça marche</h2>
-      <div class="steps">
-        <div class="step"><div class="circle">📷</div><strong>Photo</strong>Prenez ou importez une photo</div>
-        <div class="step"><div class="circle">✨</div><strong>Pré-remplissage</strong>Nous analysons et pré-remplissons</div>
-        <div class="step"><div class="circle">✓</div><strong>Validation</strong>Vous vérifiez et enregistrez</div>
-      </div>
-
-      <h2>Ou continuer manuellement</h2>
-      <form id="addForm" class="form-grid">
-        <div class="full"><label>Nom</label><input id="name" placeholder="Ex. Macallan 12 Sherry Oak" required /></div>
-        <div><label>Marque / Distillerie</label><input id="brand" placeholder="Ex. Macallan" /></div>
-        <div><label>Type</label><select id="type"><option>Whisky</option><option>Rhum</option><option>Tequila</option><option>Cognac</option><option>Gin</option></select></div>
-        <div><label>Pays</label><input id="country" placeholder="Ex. Écosse" /></div>
-        <div><label>ABV (%)</label><input id="abv" placeholder="Ex. 40" inputmode="decimal" /></div>
-        <div class="full btn-row">
-          <button type="button" class="btn primary" id="simulateAnalysis">✨ Lancer l’analyse</button>
-          <button type="submit" class="btn secondary">✎ Saisie manuelle</button>
-        </div>
-      </form>
-    </section>
-
-    <section class="page" data-page="prefill">
-      <div class="topbar">
-        <button class="icon-btn back-btn" data-nav="add">←</button>
-        <div class="brand hero-title center"><h1>Pré-remplissage détecté</h1></div>
-        <button class="icon-btn bell">♡</button>
-      </div>
-
-      <div class="info-card match-card">
-        <div><h3>✅ Correspondance probable trouvée</h3><p class="brand-sub">Notre IA a analysé votre photo et trouvé une correspondance.</p></div>
-        <div><div class="confidence">92%</div><p class="brand-sub" style="text-align:center">Confiance</p></div>
-      </div>
-
-      <div class="panel">
-        <div class="detected">
-          <img alt="" src="https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=300&auto=format&fit=crop" />
-          <div>
-            <h1>Depaz 2003 Brut de Fût</h1>
-            <div class="tag-row"><span class="tag">Rhum · Brut de fût</span></div>
-          </div>
-        </div>
-
-        <div class="fields">
-          <div class="field-row"><div class="flabel">🏷️ Nom</div><div class="value">Depaz 2003 Brut de Fût</div><button class="edit">✎</button></div>
-          <div class="field-row"><div class="flabel">🏭 Marque</div><div class="value">Depaz</div><button class="edit">✎</button></div>
-          <div class="field-row"><div class="flabel">🥃 Type</div><div class="value">Rhum</div><button class="edit">✎</button></div>
-          <div class="field-row"><div class="flabel">🌍 Pays</div><div class="value">Martinique</div><button class="edit">✎</button></div>
-          <div class="field-row"><div class="flabel">💧 ABV</div><div class="value">45.0 %</div><button class="edit">✎</button></div>
-          <div class="field-row"><div class="flabel">📅 Millésime</div><div class="value">2003</div><button class="edit">✎</button></div>
-        </div>
-
-        <h2 style="margin-top:18px">Arômes suggérés</h2>
-        <div class="tag-row"><span class="tag">Vanille</span><span class="tag">Bois d’Inde</span><span class="tag">Fruits secs</span><span class="tag">Caramel</span></div>
-        <div class="note-box">ⓘ Ces informations ont été extraites par OCR et complétées par une recherche web. Merci de les vérifier avant validation.</div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn primary" id="validatePrefill">✓ Valider et continuer</button>
-        <button class="btn secondary">✎ Corriger</button>
-      </div>
-    </section>
-
-    <section class="page" data-page="detail">
-      <div class="topbar">
-        <button class="icon-btn back-btn" data-nav="explorer">←</button>
-        <div class="brand" style="text-align:center"><div class="brand-name" style="font-size:1.55rem">Liquorne</div></div>
-        <button class="icon-btn">↗</button><button class="icon-btn">⋯</button>
-      </div>
-
-      <div class="product-top">
-        <div class="product-img"><img src="https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=520&auto=format&fit=crop" alt="" /></div>
-        <div class="product-info">
-          <h1>Depaz 2003<br/>Brut de Fût</h1>
-          <div class="meta" style="font-size:1rem">Martinique 🇲🇶</div>
-          <div class="meta">Rhum · Agricole · Millésime</div>
-          <p class="brand-sub" style="margin-top:8px">52.1% vol.</p>
-          <div class="split-rating">
-            <div><div class="big">4.7 ★</div><div>Note moyenne</div><div class="meta">842 avis</div></div>
-            <div class="line"></div>
-            <div><div class="big">4.5 ★</div><div>Ma note</div><div class="meta">Super !</div></div>
-          </div>
-          <div class="status-pill">🍾 <div><strong>Possédée</strong><div class="brand-sub">Ajoutée le 12 mai 2024</div></div>›</div>
-        </div>
-      </div>
-
-      <div class="panel" style="margin-top:18px">
-        <h2>Palette aromatique ⓘ</h2>
-        <div class="radar-wrap">
-          <div class="radar" id="radarDetail"></div>
-          <div>
-            <p class="brand-sub">Intensité aromatique</p>
-            <div class="taste-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
-            <p class="brand-sub">Arômes principaux</p>
-            <div class="tag-row"><span class="tag">Fruits tropicaux</span><span class="tag">Bois toasté</span><span class="tag">Vanille</span><span class="tag">Caramel</span><span class="tag">Épices douces</span><span class="tag">Cacao</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel" style="margin-top:14px">
-        <div class="section-head" style="margin-top:0"><h2>Mes notes de dégustation</h2><button class="see">✎ Modifier</button></div>
-        <p>Nez puissant et élégant : mangue mûre, ananas rôti et zeste d’orange s’entrelacent avec des notes de vanille, de bois toasté et une touche de cacao. La bouche est ample, chaleureuse et complexe.</p>
-        <div class="attr-row"><span class="attr">🥃 Dégusté pur</span><span class="attr">🌡️ 18°C</span><span class="attr">📅 12 mai 2024</span><span class="attr">📍 À la maison</span></div>
-      </div>
-
-      <div class="quick-grid" style="grid-template-columns:1fr 1.35fr 1fr;margin-bottom:0">
-        <button class="btn secondary">☆ Noter</button><button class="btn secondary">🍾 J’ai cette bouteille</button><button class="btn secondary">🔖 Wishlist</button>
-      </div>
-    </section>
-
-    <section class="page" data-page="cave">
-      <div class="topbar">
-        <div class="logo"></div>
-        <div class="brand"><div class="brand-name">Liquorne</div><div class="brand-sub">Ma cave, mon patrimoine.</div></div>
-        <button class="icon-btn bell">♡</button>
-      </div>
-      <h1>Ma cave</h1>
-      <div class="cellar-stats">
-        <div class="info-card"><div class="stat">🍾<div class="num">156</div><div class="lbl">Bouteilles au total</div></div><div class="stat">🥂<div class="num">28</div><div class="lbl">Ouvertes</div></div></div>
-        <div class="info-card"><div class="stat">🔖<div class="num">18</div><div class="lbl">Wishlist</div></div><div class="stat">☆<div class="num">4.6</div><div class="lbl">Note moyenne</div></div></div>
-      </div>
-      <div class="tabs"><button class="chip active">▦ Toutes</button><button class="chip">🥂 Ouvertes</button><button class="chip">🌿 À goûter</button><button class="chip">🔖 Wishlist</button></div>
-      <div class="search-row"><div class="search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Rechercher une bouteille..." /></div><button class="chip">↕ Trier</button></div>
-      <div class="list" id="caveList"></div>
-    </section>
-
-    <section class="page" data-page="journal">
-      <div class="topbar">
-        <div class="logo"></div><div class="brand"><div class="brand-name">Liquorne</div><div class="brand-sub">Journal de dégustation</div></div><button class="icon-btn bell">♡</button>
-      </div>
-      <div class="info-card" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-        <div class="stat">🥃<div class="num">24</div><div class="lbl">Dégustations<br/>Ce mois-ci : 6</div></div>
-        <div class="stat">☆<div class="num">4.6</div><div class="lbl">Note moyenne</div></div>
-      </div>
-      <button class="btn primary" style="width:100%;margin-bottom:14px">＋ Ajouter une dégustation</button>
-      <div class="search-row"><div class="search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Rechercher une dégustation" /></div><button class="icon-btn">☷</button></div>
-      <div class="chips"><button class="chip active">Toutes</button><button class="chip">Whisky</button><button class="chip">Rhum</button><button class="chip">Tequila</button><button class="chip">Gin</button></div>
-      <div class="journal-list">
-        <div class="timeline"><div class="date">18<span>Mai<br/>2024</span></div><div class="date">12<span>Mai<br/>2024</span></div><div class="date">05<span>Mai<br/>2024</span></div><div class="date">28<span>Avr.<br/>2024</span></div></div>
-        <div class="journal-cards" id="journalCards"></div>
-      </div>
-    </section>
-
-    <section class="page" data-page="profil">
-      <div class="topbar">
-        <div class="logo"></div><div class="brand"><div class="brand-name">Liquorne</div><div class="brand-sub">Votre cave, vos dégustations, vos découvertes.</div></div><button class="icon-btn bell">♡</button>
-      </div>
-      <div class="hero-title"><button class="icon-btn back-btn" data-nav="explorer">←</button><div><h1>Mon profil gustatif</h1><p class="brand-sub">Découvrez votre signature aromatique et vos préférences.</p></div></div>
-      <div class="panel profile-hero">
-        <div class="avatar"></div>
-        <div><p class="brand-sub">Ma signature gustative</p><h2 style="color:var(--gold);font-size:1.6rem;margin:2px 0 8px">Épicé · Boisé · Gourmand</h2><p>Vous appréciez les spiritueux riches, complexes et chaleureux.</p><div class="attr-row"><span class="attr">★ 4.8</span><span class="attr">🥃 128 dégustations</span><span class="attr">🔖 23 wishlists</span></div></div>
-      </div>
-      <div class="profile-grid">
-        <div class="panel"><h2>Ma palette aromatique ⓘ</h2><div class="radar" id="radarProfile"></div></div>
-        <div class="side-stack">
-          <div class="panel"><h3>Types préférés</h3><div class="pref-icons"><div>🥃<br/>45%</div><div>🍾<br/>25%</div><div>🍸<br/>15%</div><div>🍷<br/>15%</div></div></div>
-          <div class="panel"><h3>Pays préférés</h3><div class="flags"><div><div class="flag">🏴󠁧󠁢󠁳󠁣󠁴󠁿</div>Écosse<br/>52%</div><div><div class="flag">🇬🇹</div>Guatemala<br/>18%</div><div><div class="flag">🇫🇷</div>France<br/>12%</div><div><div class="flag">🇯🇲</div>Jamaïque<br/>8%</div></div></div>
-          <div class="panel"><h3>ABV moyen</h3><div style="font-size:2rem;font-family:var(--serif)">46%</div><p class="brand-sub">Plage préférée : 40% – 55%</p></div>
-        </div>
-      </div>
-      <div class="panel" style="margin-top:12px">
-        <h2>Top arômes ⓘ</h2>
-        <div class="aromas"><div><div class="aroma-icon">🌼</div>Vanille<div class="pct">72%</div></div><div><div class="aroma-icon">🟫</div>Caramel<div class="pct">68%</div></div><div><div class="aroma-icon">🪵</div>Chêne<div class="pct">64%</div></div><div><div class="aroma-icon">⭐</div>Épices<div class="pct">58%</div></div><div><div class="aroma-icon">🥜</div>Fruits secs<div class="pct">52%</div></div><div><div class="aroma-icon">🍫</div>Chocolat<div class="pct">48%</div></div></div>
-      </div>
-      <div class="section-head"><h2>Recommandé pour vous</h2><button class="see">Voir tout ›</button></div>
-      <div class="profile-recos" id="profileRecos"></div>
-    </section>
-
-    <nav class="bottom-nav">
-      <button class="nav-item active" data-nav="explorer">◉<span>Explorer</span></button>
-      <button class="nav-item" data-nav="cave">♟<span>Cave</span></button>
-      <button class="nav-plus" data-nav="add">+</button>
-      <button class="nav-item" data-nav="journal">▣<span>Journal</span></button>
-      <button class="nav-item" data-nav="profil">♙<span>Profil</span></button>
-    </nav>
-  </main>
-
-  <script>
-    const bottles = [];
-    const journal = [];
-
-    const $ = s => document.querySelector(s);
-    const $$ = s => [...document.querySelectorAll(s)];
-
-    function nav(page){
-      $$('.page').forEach(p => p.classList.toggle('active', p.dataset.page === page));
-      $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.nav === page));
-      window.scrollTo(0,0);
-    }
-    document.addEventListener('click', e => {
-      const b = e.target.closest('[data-nav]');
-      if (b) nav(b.dataset.nav);
-      if (e.target.closest('[data-open-detail]')) nav('detail');
-    });
-
-    function renderMini(){
-      const empty = '<div class="info-card" style="grid-column:1/-1;color:var(--muted)">Aucune bouteille pour le moment. Ajoutez votre première bouteille avec le bouton +.</div>';
-      $('#rediscover').innerHTML = bottles.length ? bottles.slice(0,5).map(b => `
-        <article class="mini-card" data-open-detail>
-          <img src="${b.img}" alt="">
-          <div><h3>${b.name}</h3><div class="meta">${b.country} · ${b.abv}</div><div class="rating">★ ${b.rating}</div></div>
-        </article>`).join('') : empty;
-      $('#recent').innerHTML = bottles.length ? bottles.slice(0,3).map((b,i) => `
-        <article class="recent-card" data-open-detail>
-          <img src="${b.img}" alt="">
-          <div><h3>${b.name}</h3><div class="meta">${b.country} · ${b.abv}</div><div class="meta">Ajouté récemment</div></div>
-        </article>`).join('') : empty;
-      $('#profileRecos').innerHTML = bottles.length ? bottles.slice(0,3).map(b => `
-        <article class="recent-card" data-open-detail>
-          <img src="${b.img}" alt="">
-          <div><h3>${b.name}</h3><div class="meta">${b.type} · ${b.country}</div><div class="rating">★ ${b.rating}</div></div>
-        </article>`).join('') : empty;
-    }
-
-    function statusLabel(s){
-      if(s==="open") return '<span class="status open">Ouverte</span>';
-      if(s==="todo") return '<span class="status todo">À goûter</span>';
-      return '<span class="status wish">Wishlist</span>';
-    }
-    function renderCave(){
-      $('#caveList').innerHTML = bottles.length ? bottles.map(b => `
-        <article class="list-card" data-open-detail>
-          <img src="${b.img}" alt="">
-          <div><h3>${b.name}</h3><div class="meta">${b.type} · ${b.country} · ${b.abv}</div><div class="tag-row">${b.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
-          <div class="right-rating">${statusLabel(b.status)}<br><br>★ ${b.rating}<br><span style="color:var(--soft)">⋮</span></div>
-        </article>`).join('') : '<div class="info-card" style="color:var(--muted)">Votre cave est vide. Ajoutez votre première bouteille avec le bouton +.</div>';
-    }
-    function renderJournal(){
-      $('#journalCards').innerHTML = journal.length ? journal.map(j => `
-        <article class="journal-card" data-open-detail>
-          <img src="${j.img}" alt="">
-          <div><h3>${j.name}</h3><div class="meta">${j.type}</div><div class="tag-row">${j.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div><p>${j.note}</p></div>
-          <div class="right-rating">★ ${j.rating}<br><span style="color:var(--soft)">⋮</span></div>
-        </article>`).join('') : '<div class="info-card" style="grid-column:1/-1;color:var(--muted)">Aucune dégustation pour le moment. Ajoutez votre première note lorsque vous dégusterez une bouteille.</div>';
-    }
-
-    function radar(el, labels, vals){
-      const size = 260, cx=130, cy=130, r=88;
-      const n = labels.length;
-      const pts = vals.map((v,i)=>{
-        const a = -Math.PI/2 + i*2*Math.PI/n;
-        const rr = r*(v/10);
-        return [cx+rr*Math.cos(a), cy+rr*Math.sin(a)];
-      });
-      const grid = [2,4,6,8,10].map(level=>{
-        const p = labels.map((_,i)=>{
-          const a = -Math.PI/2 + i*2*Math.PI/n;
-          const rr = r*(level/10);
-          return `${cx+rr*Math.cos(a)},${cy+rr*Math.sin(a)}`;
-        }).join(' ');
-        return `<polygon class="grid" points="${p}"/>`;
-      }).join('');
-      const axes = labels.map((_,i)=>{
-        const a=-Math.PI/2+i*2*Math.PI/n;
-        return `<line class="axis" x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}"/>`;
-      }).join('');
-      const texts = labels.map((l,i)=>{
-        const a=-Math.PI/2+i*2*Math.PI/n;
-        const x=cx+(r+28)*Math.cos(a), y=cy+(r+28)*Math.sin(a);
-        return `<text text-anchor="middle" x="${x}" y="${y}">${l}</text>`;
-      }).join('');
-      el.innerHTML = `<svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Radar aromatique">${grid}${axes}<polygon class="poly" points="${pts.map(p=>p.join(',')).join(' ')}"/>${pts.map(p=>`<circle class="dot" cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('')}${texts}</svg>`;
-    }
-
-    $('#simulateAnalysis').addEventListener('click', () => nav('prefill'));
-    $('#validatePrefill').addEventListener('click', () => nav('detail'));
-    $('#addForm').addEventListener('submit', e => {
-      e.preventDefault();
-      const item = {name:$('#name').value || 'Nouvelle bouteille', type:$('#type').value, country:$('#country').value || 'France', abv:($('#abv').value || '40')+'%', rating:'-', tags:['À compléter'], status:'todo', img:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?q=80&w=200&auto=format&fit=crop'};
-      bottles.unshift(item);
-      localStorage.setItem('liquorne.bottles', JSON.stringify(bottles));
-      renderMini(); renderCave(); nav('cave');
-    });
-
-    localStorage.removeItem('liquorne.bottles');
-    renderMini();
-    renderCave();
-    renderJournal();
-    radar($('#radarDetail'), ['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé'], [5.5,7.8,6.2,6.8,4.8,5.2]);
-    radar($('#radarProfile'), ['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé','Végétal','Minéral'], [7.2,8.8,8.1,7.6,4.3,5.6,3.8,3.1]);
-  
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
-
-  </script>
+<nav class="bottom-nav"><button class="nav-item active" data-nav="explorer">⌾<span>Explorer</span></button><button class="nav-item" data-nav="cave">♟<span>Cave</span></button><button class="nav-plus" data-nav="add">+</button><button class="nav-item" data-nav="journal">▣<span>Journal</span></button><button class="nav-item" data-nav="profil">♙<span>Profil</span></button></nav>
+<div class="toast" id="toast"></div>
+</main>
+<script>
+const KEY='liquorne.v2.final.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const uid=()=>Date.now().toString(36)+Math.random().toString(16).slice(2);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+function load(){try{bottles=JSON.parse(localStorage.getItem(KEY)||'[]')}catch{bottles=[]}}function save(){localStorage.setItem(KEY,JSON.stringify(bottles))}
+function nav(p){$$('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.nav===p));if(p==='detail')renderDetail();window.scrollTo(0,0)}
+document.addEventListener('click',e=>{let n=e.target.closest('[data-nav]');if(n)nav(n.dataset.nav);let c=e.target.closest('[data-id]');if(c){currentId=c.dataset.id;nav('detail')}if(e.target.closest('[data-soon]'))toast('Fonction prévue pour une prochaine version.')});
+function avg(){let r=bottles.map(b=>+b.rating).filter(x=>x>0);return r.length?(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1):'—'}
+function img(b){return b.photo?`<img class="thumb" src="${b.photo}" alt="">`:`<div class="thumb"></div>`}
+function status(s){return s==='open'?'<span class="status open">Ouverte</span>':s==='wish'?'<span class="status wish">Wishlist</span>':'<span class="status todo">À goûter</span>'}
+function tags(a){return (a||[]).slice(0,4).map(x=>`<span class="tag">${x}</span>`).join('')}
+function renderStats(){let wish=bottles.filter(b=>b.status==='wish').length,tasted=bottles.filter(b=>b.rating).length;$('#stOwned').textContent=bottles.length-wish;$('#stTasted').textContent=tasted;$('#stWish').textContent=wish;$('#stAvg').textContent=avg();$('#cTotal').textContent=bottles.length;$('#cOpen').textContent=bottles.filter(b=>b.status==='open').length;$('#cWish').textContent=wish;$('#cAvg').textContent=avg();$('#jCount').textContent=tasted;$('#jAvg').textContent=avg();$('#pAvg').textContent='★ '+avg();$('#pTasted').textContent=tasted+' dégustation'+(tasted>1?'s':'');$('#pWishlist').textContent=wish+' wishlist'}
+function renderExplorer(){$('#onboard').style.display=bottles.length?'none':'block';let owned=bottles.filter(b=>b.status!=='wish');$('#rediscover').innerHTML=owned.length?owned.slice(0,6).map(cardWide).join(''):'<div class="empty" style="min-width:100%"><strong>Aucune bouteille</strong>Ajoutez votre première bouteille avec le bouton +.</div>';$('#recent').innerHTML=bottles.length?bottles.slice().reverse().slice(0,5).map(cardWide).join(''):'<div class="empty" style="min-width:100%"><strong>Derniers ajouts vide</strong>Les nouvelles bouteilles apparaîtront ici.</div>'}
+function cardWide(b){return `<article class="panel list-card" style="min-width:270px" data-id="${b.id}">${img(b)}<div><h3>${b.name}</h3><div class="meta">${b.type} · ${b.country||'—'} · ${b.abv||'—'}</div><div class="tag-row">${tags(b.aromas)}</div></div><div class="right">${b.rating?'★ '+b.rating:'›'}</div></article>`}
+function list(){let q=($('#caveSearch')?.value||'').toLowerCase(),l=bottles.slice();if(filter!=='all')l=l.filter(b=>b.status===filter);if(q)l=l.filter(b=>[b.name,b.brand,b.type,b.country,(b.aromas||[]).join(' ')].join(' ').toLowerCase().includes(q));l.sort((a,b)=>sortDesc?(b.createdAt||0)-(a.createdAt||0):(a.createdAt||0)-(b.createdAt||0));return l}
+function renderCave(){let l=list();$('#caveList').innerHTML=l.length?l.map(b=>`<article class="panel list-card" data-id="${b.id}">${img(b)}<div><h3>${b.name}</h3><div class="meta">${b.type} · ${b.country||'—'} · ${b.abv||'—'}</div><div class="tag-row">${tags(b.aromas)}</div></div><div class="right">${status(b.status)}<br><br>${b.rating?'★ '+b.rating:'—'}<br><span style="color:var(--soft)">⋮</span></div></article>`).join(''):'<div class="empty"><strong>Votre cave est vide</strong>Ajoutez votre première bouteille avec le bouton +.</div>'}
+function renderJournal(){let r=bottles.filter(b=>b.rating);$('#journalEmpty').style.display=r.length?'none':'block';$('#journalCards').innerHTML=r.map(b=>`<article class="panel list-card" data-id="${b.id}">${img(b)}<div><h3>${b.name}</h3><div class="meta">${b.type} · ${b.country||'—'}</div><div class="tag-row">${tags(b.aromas)}</div><p class="brand-sub">${b.note||'Note à compléter.'}</p></div><div class="right">★ ${b.rating}</div></article>`).join('')}
+function renderProfile(){let ac={},tc={},ab=[];bottles.forEach(b=>{(b.aromas||[]).forEach(a=>ac[a]=(ac[a]||0)+1);if(b.type)tc[b.type]=(tc[b.type]||0)+1;let n=parseFloat(String(b.abv).replace(',','.'));if(!isNaN(n))ab.push(n)});let top=Object.entries(ac).sort((a,b)=>b[1]-a[1]).slice(0,6);$('#topAromas').innerHTML=top.length?top.map(([a,c])=>`<div>${a}<div class="pct">${c}</div></div>`).join(''):'<div style="grid-column:1/-1;color:var(--muted)">Ajoutez des arômes pour construire votre profil.</div>';let types=Object.entries(tc).sort((a,b)=>b[1]-a[1]).slice(0,4);$('#prefTypes').innerHTML=types.length?types.map(([t,c])=>`<div>${t}<br>${Math.round(c/bottles.length*100)}%</div>`).join(''):'<div style="color:var(--muted)">—</div>';$('#pAbv').textContent=ab.length?Math.round(ab.reduce((a,b)=>a+b,0)/ab.length)+'%':'—';if(top.length>=3){$('#tasteSignature').textContent=top.slice(0,3).map(x=>x[0]).join(' · ');$('#tasteSentence').textContent='Votre signature se construit à partir de vos bouteilles.'}else{$('#tasteSignature').textContent='À construire';$('#tasteSentence').textContent='Ajoutez quelques bouteilles pour faire apparaître vos préférences.'}radar($('#radarProfile'),['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé','Végétal','Minéral'],bottles.length?[6,7,5,6,4,5,3,3]:[0,0,0,0,0,0,0,0])}
+function renderDetail(){let b=bottles.find(x=>x.id===currentId)||bottles[0];if(!b){$('#detailName').textContent='Aucune bouteille';$('#detailTags').innerHTML='';radar($('#radarDetail'),['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé'],[0,0,0,0,0,0]);return}currentId=b.id;$('#detailName').textContent=b.name;$('#detailOrigin').textContent=b.country||'—';$('#detailType').textContent=b.type||'—';$('#detailAbv').textContent=b.abv||'—';$('#detailAvg').textContent=b.rating?b.rating+' ★':'—';$('#detailMine').textContent=b.rating?b.rating+' ★':'—';$('#detailTags').innerHTML=tags(b.aromas)||'<span class="tag">À compléter</span>';$('#tasteNote').value=b.note||'';let im=$('#detailImage');if(b.photo){im.style.backgroundImage=`url(${b.photo})`;im.style.backgroundSize='cover';im.style.backgroundPosition='center';im.classList.remove('bottle')}else{im.style.backgroundImage='';im.classList.add('bottle')}radar($('#radarDetail'),['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé'],radarVals(b.aromas||[]))}
+function radarVals(ar){let t=ar.join(' ').toLowerCase();return [/fruit|agrume|tropical|sec/.test(t)?8:4,/bois|chêne|toast/.test(t)?8:4,/épic|poivre|cannelle/.test(t)?7:4,/vanille|caramel|chocolat|miel|gourmand/.test(t)?8:4,/floral|fleur/.test(t)?7:3,/fum|tourb|iod/.test(t)?8:3]}
+function add(data){let b={id:uid(),name:data.name||'Nouvelle bouteille',brand:data.brand||'',type:data.type||'Autre',country:data.country||'',abv:data.abv?(String(data.abv).includes('%')?String(data.abv):String(data.abv)+'%'):'',aromas:data.aromas?.length?data.aromas:['Vanille','Caramel','Boisé'],rating:data.rating||'',status:data.status||'todo',note:'',photo:data.photo||'',createdAt:Date.now()};bottles.push(b);currentId=b.id;save();renderAll();return b}
+function form(){return{name:$('#fName').value.trim(),brand:$('#fBrand').value.trim(),type:$('#fType').value,country:$('#fCountry').value.trim(),abv:$('#fAbv').value.trim(),aromas:$('#fAromas').value.split(',').map(x=>x.trim()).filter(Boolean),photo}}
+$('#addForm').addEventListener('submit',e=>{e.preventDefault();if(!$('#fName').value.trim())return toast('Renseignez au moins le nom.');add(form());toast('Bouteille ajoutée.');nav('detail')});
+$('#runAnalysis').onclick=()=>{let f=form(),a=f.aromas.length?f.aromas:['Vanille','Bois d’Inde','Fruits secs','Caramel'];$('#detectedTitle').textContent=f.name||'Depaz 2003 Brut de Fût';$('#pvName').textContent=f.name||'Depaz 2003 Brut de Fût';$('#pvBrand').textContent=f.brand||'Depaz';$('#pvType').textContent=f.type||'Rhum';$('#pvCountry').textContent=f.country||'Martinique';$('#pvAbv').textContent=f.abv?(String(f.abv).includes('%')?f.abv:f.abv+'%'):'45%';$('#pvAromas').innerHTML=a.map(x=>`<span class="tag">${x}</span>`).join('');nav('prefill')};
+$('#validatePrefill').onclick=()=>{add({name:$('#pvName').textContent,brand:$('#pvBrand').textContent,type:$('#pvType').textContent,country:$('#pvCountry').textContent,abv:$('#pvAbv').textContent,aromas:Array.from($('#pvAromas').querySelectorAll('.tag')).map(x=>x.textContent),photo});toast('Pré-remplissage validé.');nav('detail')};
+function file(f){if(!f)return;let r=new FileReader();r.onload=()=>{photo=r.result;$('#photoPreview').style.display='block';$('#photoPreview img').src=photo;toast('Photo ajoutée.')};r.readAsDataURL(f)}
+$('#cameraInput').onchange=e=>file(e.target.files[0]);$('#galleryInput').onchange=e=>file(e.target.files[0]);
+$('#saveTaste').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)return;b.note=$('#tasteNote').value.trim();if(!b.rating)b.rating='4.5';save();renderAll();toast('Note enregistrée.')};
+$('#rateBottle').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)return;let r=prompt('Votre note sur 5 ?',b.rating||'4.5');if(r){b.rating=r.replace(',','.');save();renderAll();renderDetail();toast('Note mise à jour.')}};
+$('#toggleOwned').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)return;b.status=b.status==='open'?'todo':'open';save();renderAll();renderDetail();toast('Statut mis à jour.')};
+$('#caveSearch').oninput=renderCave;$('#sortBtn').onclick=()=>{sortDesc=!sortDesc;renderCave()};$$('[data-cave-filter]').forEach(btn=>btn.onclick=()=>{filter=btn.dataset.caveFilter;$$('[data-cave-filter]').forEach(b=>b.classList.toggle('active',b===btn));renderCave()});
+function radar(el,labels,vals){let size=260,cx=130,cy=130,r=84,n=labels.length;let p=(i,l=10)=>{let a=-Math.PI/2+i*2*Math.PI/n,rr=r*l/10;return[cx+rr*Math.cos(a),cy+rr*Math.sin(a)]};let grids=[2,4,6,8,10].map(l=>`<polygon class="grid" points="${labels.map((_,i)=>p(i,l).join(',')).join(' ')}"/>`).join('');let axes=labels.map((_,i)=>`<line class="axis" x1="${cx}" y1="${cy}" x2="${p(i)[0]}" y2="${p(i)[1]}"/>`).join('');let pts=labels.map((_,i)=>p(i,Math.max(0,Math.min(10,vals[i]||0))));let text=labels.map((la,i)=>{let q=p(i,12.6);return`<text text-anchor="middle" x="${q[0]}" y="${q[1]}">${la}</text>`}).join('');el.innerHTML=`<svg viewBox="0 0 ${size} ${size}">${grids}${axes}<polygon class="poly" points="${pts.map(x=>x.join(',')).join(' ')}"/>${pts.map(x=>`<circle class="dot" cx="${x[0]}" cy="${x[1]}" r="4"/>`).join('')}${text}</svg>`}
+function renderAll(){renderStats();renderExplorer();renderCave();renderJournal();renderProfile()}
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+load();renderAll();radar($('#radarDetail'),['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé'],[0,0,0,0,0,0]);
+</script>
 </body>
 </html>

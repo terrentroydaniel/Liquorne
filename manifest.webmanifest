@@ -8,11 +8,6 @@
   "orientation": "portrait",
   "background_color": "#061221",
   "theme_color": "#061221",
-  "categories": [
-    "lifestyle",
-    "food",
-    "productivity"
-  ],
   "icons": [
     {
       "src": "./icons/icon-192.png",

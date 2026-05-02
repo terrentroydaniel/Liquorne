@@ -1,18 +1,13 @@
-# Liquorne — Prototype PWA V1
+# Liquorne — PWA V2 finale
 
-Cette version transforme le prototype HTML validé en PWA installable.
+Corrections :
+- bibliothèque vide au démarrage ;
+- suppression des bouteilles/images de démonstration ;
+- plus aucune image externe donc plus de visuel cassé ;
+- bottom navigation fixe ;
+- ajout manuel + photo galerie/caméra ;
+- pré-remplissage simulé + validation ;
+- fiche bouteille avec radar aromatique ;
+- cave, journal et profil alimentés par vos propres données locales.
 
-## Contenu
-- `index.html` : webapp autonome
-- `manifest.webmanifest` : déclaration PWA
-- `sw.js` : cache applicatif minimal
-- `icons/` : icônes générées à partir du logo Liquorne fourni
-
-## Test rapide
-1. Dézipper le dossier.
-2. Servir le dossier avec un serveur local, par exemple :
-   `python -m http.server 8080`
-3. Ouvrir `http://localhost:8080` dans Chrome.
-4. Sur Android : menu Chrome → “Ajouter à l'écran d'accueil” / “Installer l'application”.
-
-Note : le service worker ne fonctionne pas correctement en `file://`. Il faut passer par `http://localhost` ou un hébergement HTTPS.
+À publier tel quel à la racine d’un dépôt GitHub Pages.
