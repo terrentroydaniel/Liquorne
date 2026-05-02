@@ -1,4 +1,4 @@
-const CACHE_NAME='liquorne-pwa-v3-3-icons-fixed-1';
+const CACHE_NAME='liquorne-pwa-v3-4-smart-analyzer-1';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icons/liquorne-logo.png','./icons/liquorne-logo.svg','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(ASSETS).catch(()=>{})));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))));self.clients.claim()});

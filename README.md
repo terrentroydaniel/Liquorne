@@ -1,13 +1,29 @@
-# Liquorne — PWA V3.3
+# Liquorne — PWA V3.4 Smart Analyzer
 
-## Corrections
-- Logo header rendu en SVG inline data URI : il reste visible même si le dossier `icons/` est mal uploadé.
-- Icône notification rendue en CSS/SVG, plus de bouton vide.
-- Navigation basse rendue avec fallbacks CSS, moins dépendante des polices/emoji Android.
-- Cache service worker changé pour forcer le rechargement.
+## Analyse de la photo Buffalo Trace
+La photo montre une étiquette courbée, avec reflets, texte décoratif et code-barres visible.
+Le bon paramétrage n'est pas un OCR unique mais un pipeline hybride.
 
-## Important après upload GitHub Pages
-Sur Android Chrome :
-1. menu du site / Infos du site ;
-2. Effacer les données ;
-3. recharger la page.
+## Améliorations V3.4
+- prétraitement image côté navigateur ;
+- recadrages multiples :
+  - photo complète ;
+  - étiquette centrale ;
+  - bande marque ;
+  - bloc informations ;
+  - zone code-barres ;
+- OCR multi-passes Tesseract.js sur les zones utiles ;
+- détection code-barres via BarcodeDetector si disponible ;
+- recherche OpenFoodFacts par code-barres puis texte ;
+- fallback Wikipedia ;
+- heuristiques locales pour Buffalo Trace, Macallan, Depaz ;
+- seuil OCR plus tolérant mais filtrage du bruit ;
+- progression ergonomique dans le bouton / la zone d’analyse.
+
+## Résultat attendu sur la photo fournie
+- Nom : Buffalo Trace Kentucky Straight Bourbon Whiskey
+- Marque : Buffalo Trace
+- Type : Whisky / Bourbon
+- Pays : États-Unis
+- ABV : 45%
+- Arômes suggérés : Vanille, Caramel, Chêne, Épices douces

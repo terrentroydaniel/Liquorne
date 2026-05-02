@@ -114,6 +114,13 @@ h3{font-size:1.05rem}
 .nav-item{font-size:.74rem}
 .nav-item > span:first-child:not(:last-child){display:none}
 
+
+.analyzer-hint{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:.82rem;
+  line-height:1.35;
+}
 </style>
 </head>
 <body>
@@ -133,10 +140,10 @@ h3{font-size:1.05rem}
   <h2>Ajoutez rapidement</h2>
   <div class="quick-grid"><label class="panel quick-card" for="cameraInput"><span class="big-icon">📷</span><h3>Prendre une photo</h3><p class="brand-sub">Photo directe de l’étiquette.</p></label><label class="panel quick-card" for="galleryInput"><span class="big-icon">🖼️</span><h3>Importer depuis la galerie</h3><p class="brand-sub">Sélection depuis vos photos.</p></label><input id="cameraInput" type="file" accept="image/*" capture="environment" hidden/><input id="galleryInput" type="file" accept="image/*" hidden/></div>
   <div class="photo-preview" id="photoPreview"><img alt="Photo sélectionnée"/></div>
-  <div class="panel" style="padding:16px;margin-bottom:20px">✨ Pré-remplissage assisté : photo, OCR si exploitable, puis recherche en ligne à partir du nom ou de la marque.</div>
+  <div class="panel" style="padding:16px;margin-bottom:20px">✨ Pré-remplissage assisté : lecture multi-zones, détection code-barres, OCR renforcé, puis recherche en ligne.</div>
   <h2>Comment ça marche</h2><div class="steps"><div class="step"><div class="circle">1</div><strong>Photo</strong>Prenez ou importez</div><div class="step"><div class="circle">2</div><strong>Analyse</strong>Recherche en fond réelle</div><div class="step"><div class="circle">3</div><strong>Validation</strong>Vous vérifiez</div></div>
   <h2>Saisie manuelle</h2>
-  <form id="addForm" class="form-grid"><div class="full"><label>Nom</label><input id="fName" placeholder="Ex. Depaz 2003 Brut de Fût" required/></div><div><label>Marque</label><input id="fBrand" placeholder="Ex. Depaz"/></div><div><label>Type</label><select id="fType"><option>Whisky</option><option>Rhum</option><option>Tequila</option><option>Cognac</option><option>Gin</option><option>Autre</option></select></div><div><label>Pays</label><input id="fCountry" placeholder="Ex. Martinique"/></div><div><label>ABV (%)</label><input id="fAbv" inputmode="decimal" placeholder="Ex. 45"/></div><div class="full"><label>Nom ou marque visible</label><input id="fKeywords" placeholder="Ex. Buffalo Trace, Depaz, Macallan..." /></div><div class="full"><label>Arômes</label><input id="fAromas" placeholder="vanille, caramel, bois, fruits secs"/></div><div class="full btn-row"><button class="btn primary" type="button" id="runAnalysis"><span id="analysisIcon">✨</span><span id="analysisBtnText">Lancer l’analyse assistée</span></button><div class="analysis-box" id="analysisBox"><div class="progress-label" id="analysisLabel">Préparation de l’analyse…</div><div class="progress-track"><div class="progress-bar" id="analysisProgress"></div></div></div><button class="btn secondary" type="submit">Enregistrer manuellement</button></div></form>
+  <form id="addForm" class="form-grid"><div class="full"><label>Nom</label><input id="fName" placeholder="Ex. Depaz 2003 Brut de Fût" required/></div><div><label>Marque</label><input id="fBrand" placeholder="Ex. Depaz"/></div><div><label>Type</label><select id="fType"><option>Whisky</option><option>Rhum</option><option>Tequila</option><option>Cognac</option><option>Gin</option><option>Autre</option></select></div><div><label>Pays</label><input id="fCountry" placeholder="Ex. Martinique"/></div><div><label>ABV (%)</label><input id="fAbv" inputmode="decimal" placeholder="Ex. 45"/></div><div class="full"><label>Nom ou marque visible</label><input id="fKeywords" placeholder="Ex. Buffalo Trace, Depaz, Macallan... utile si l’étiquette est peu lisible" /></div><div class="full"><label>Arômes</label><input id="fAromas" placeholder="vanille, caramel, bois, fruits secs"/></div><div class="full btn-row"><button class="btn primary" type="button" id="runAnalysis"><span id="analysisIcon">✨</span><span id="analysisBtnText">Lancer l’analyse assistée</span></button><div class="analysis-box" id="analysisBox"><div class="progress-label" id="analysisLabel">Préparation de l’analyse…</div><div class="progress-track"><div class="progress-bar" id="analysisProgress"></div></div><div class="analyzer-hint" id="analysisHint">Astuce : cadrez l’étiquette et évitez les reflets. Le code-barres est aussi exploité si visible.</div></div><button class="btn secondary" type="submit">Enregistrer manuellement</button></div></form>
 </section>
 
 <section class="page" data-page="prefill">
@@ -179,7 +186,7 @@ h3{font-size:1.05rem}
 </main>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-const KEY='liquorne.v3_3.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
+const KEY='liquorne.v3_4.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const uid=()=>Date.now().toString(36)+Math.random().toString(16).slice(2);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
@@ -211,10 +218,12 @@ async function analyzeAndPrefill(){
   const box = $('#analysisBox');
   const label = $('#analysisLabel');
   const bar = $('#analysisProgress');
-  const setProgress = (pct, msg) => {
+  const hint = $('#analysisHint');
+  const setProgress = (pct, msg, detail) => {
     box.classList.add('show');
     bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
     label.textContent = msg;
+    if(detail) hint.textContent = detail;
     text.textContent = msg;
     icon.innerHTML = '<span class="spinner"></span>';
   };
@@ -228,65 +237,179 @@ async function analyzeAndPrefill(){
   let f = form();
   let ocrText = '';
   let ocrConfidence = 0;
+  let barcode = '';
+  let variants = [];
 
   try{
-    setProgress(8, 'Préparation de la photo…');
+    setProgress(5, 'Préparation de la photo…', 'Recadrage automatique de plusieurs zones : étiquette, bande marque, infos et code-barres.');
 
+    if(photo){
+      variants = await buildImageVariants(photo);
+      setProgress(12, 'Recherche du code-barres…', 'Le code-barres est souvent plus fiable que l’OCR quand il est visible.');
+      barcode = await detectBarcodeFromVariants(variants);
+    }
+
+    if(barcode){
+      setProgress(28, 'Code-barres détecté…', 'Recherche directe du produit : ' + barcode);
+    }
+
+    const keywordsAlreadyReliable = !!(f.name || f.keywords || f.brand);
     if(photo && window.Tesseract){
-      setProgress(18, 'Lecture de l’étiquette…');
-      const result = await Tesseract.recognize(photo, 'fra+eng', {
-        logger: m => {
-          if(m.status === 'recognizing text' && m.progress){
-            setProgress(18 + Math.round(m.progress * 42), 'Lecture de l’étiquette… ' + Math.round(m.progress * 100) + '%');
-          }
-        }
+      setProgress(32, 'Lecture intelligente de l’étiquette…', 'OCR multi-zones : marque, bloc texte, informations ABV et millésime.');
+      const ocrResult = await multiPassOcr(variants, (pct, zone) => {
+        setProgress(32 + Math.round(pct * 28), 'Lecture de l’étiquette… ' + Math.round(pct*100) + '%', zone);
       });
-      ocrText = (result && result.data && result.data.text) ? result.data.text : '';
-      ocrConfidence = result && result.data ? Math.round(result.data.confidence || 0) : 0;
+      ocrText = ocrResult.text;
+      ocrConfidence = ocrResult.confidence;
     } else if(photo && !window.Tesseract){
-      setProgress(25, 'OCR non chargé, recherche assistée par mots-clés…');
+      setProgress(45, 'OCR non chargé…', 'Recherche assistée par code-barres et mots-clés utilisateur.');
     } else {
-      setProgress(25, 'Recherche assistée par mots-clés…');
+      setProgress(45, 'Recherche assistée…', 'Aucune photo fournie : utilisation des champs saisis.');
     }
 
     const parsed = parseLabelText(ocrText);
-    const reliableOcr = isOcrUseful(ocrText, ocrConfidence);
+    const hints = detectKnownBottleHints([ocrText, f.name, f.keywords, f.brand].join(' '));
+    const reliableOcr = isOcrUseful(ocrText, ocrConfidence) || !!hints.name;
 
-    if(!reliableOcr && photo){
-      setProgress(62, 'Étiquette peu lisible : utilisation des mots-clés…');
+    if(!reliableOcr && photo && !keywordsAlreadyReliable && !barcode){
+      setProgress(62, 'Étiquette peu lisible…', 'Ajoutez le nom ou la marque visible pour fiabiliser la recherche.');
+    } else if(hints.name){
+      setProgress(62, 'Marque reconnue…', 'Indice détecté : ' + hints.name);
     } else {
-      setProgress(62, 'Étiquette lue, préparation de la recherche…');
+      setProgress(62, 'Préparation de la recherche…', 'Fusion OCR + champs utilisateur + code-barres.');
     }
 
-    const query = buildSearchQuery(f, parsed, reliableOcr);
-    if(!query || query === 'spiritueux'){
-      setProgress(75, 'Ajoutez un nom ou une marque pour améliorer la recherche.');
-    } else {
-      setProgress(75, 'Recherche des informations…');
-    }
+    const query = buildSearchQuery(f, parsed, reliableOcr, hints);
+    setProgress(74, 'Recherche des informations…', barcode ? 'Recherche par code-barres puis recherche texte.' : 'Recherche OpenFoodFacts puis Wikipedia.');
 
     let online = {};
     try{
-      online = await searchOnlineBottle(query);
+      online = await searchOnlineBottle(query, barcode);
     }catch(err){
       console.warn('Online lookup failed', err);
     }
 
-    setProgress(92, 'Pré-remplissage de la fiche…');
-    const merged = mergePrefill(f, reliableOcr ? parsed : {...parsed, name:'', type:parsed.type, abv:parsed.abv}, online, reliableOcr, query);
+    setProgress(92, 'Pré-remplissage de la fiche…', 'Vérification et fusion des informations trouvées.');
+    const merged = mergePrefill(f, reliableOcr ? parsed : {...parsed, name:'', type:parsed.type, abv:parsed.abv}, online, reliableOcr, query, hints, barcode);
     applyPrefill(merged);
 
-    setProgress(100, 'Pré-remplissage prêt');
+    setProgress(100, 'Pré-remplissage prêt', merged.source ? 'Source : ' + merged.source + '. Vérifiez avant validation.' : 'Vérifiez avant validation.');
     setTimeout(() => {
       resetButton();
       nav('prefill');
-    }, 350);
+    }, 450);
   }catch(err){
     console.error(err);
-    setProgress(100, 'Analyse incomplète. Complétez avec un nom ou une marque.');
+    setProgress(100, 'Analyse incomplète', 'Complétez avec un nom ou une marque, puis relancez la recherche.');
     toast('Analyse incomplète : saisissez un nom ou une marque.');
     resetButton();
   }
+}
+
+function dataUrlToImage(src){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+function canvasToDataUrl(canvas, quality=0.92){
+  return canvas.toDataURL('image/jpeg', quality);
+}
+
+async function buildImageVariants(src){
+  const img = await dataUrlToImage(src);
+  const w = img.naturalWidth || img.width;
+  const h = img.naturalHeight || img.height;
+  const zones = [
+    {name:'photo complète', x:0, y:0, w:1, h:1, mode:'contrast'},
+    {name:'étiquette centrale', x:.08, y:.20, w:.84, h:.62, mode:'contrast'},
+    {name:'bande marque', x:.10, y:.20, w:.82, h:.22, mode:'sharp'},
+    {name:'bloc informations', x:.43, y:.34, w:.48, h:.34, mode:'threshold'},
+    {name:'zone code-barres', x:.38, y:.58, w:.50, h:.30, mode:'contrast'}
+  ];
+  return zones.map(z => ({...z, dataUrl: cropAndEnhance(img, w, h, z)}));
+}
+
+function cropAndEnhance(img, iw, ih, z){
+  const sx = Math.max(0, Math.floor(z.x * iw));
+  const sy = Math.max(0, Math.floor(z.y * ih));
+  const sw = Math.min(iw - sx, Math.floor(z.w * iw));
+  const sh = Math.min(ih - sy, Math.floor(z.h * ih));
+  const scale = Math.min(3, Math.max(1.4, 1500 / Math.max(sw, sh)));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(sw * scale);
+  canvas.height = Math.round(sh * scale);
+  const ctx = canvas.getContext('2d', {willReadFrequently:true});
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+  const data = ctx.getImageData(0,0,canvas.width,canvas.height);
+  const d = data.data;
+  const contrast = z.mode === 'threshold' ? 1.85 : z.mode === 'sharp' ? 1.55 : 1.35;
+  const brightness = z.mode === 'threshold' ? 12 : 6;
+  for(let i=0;i<d.length;i+=4){
+    let gray = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    gray = (gray - 128) * contrast + 128 + brightness;
+    if(z.mode === 'threshold'){
+      gray = gray > 142 ? 255 : 0;
+    }
+    d[i]=d[i+1]=d[i+2]=Math.max(0,Math.min(255,gray));
+  }
+  ctx.putImageData(data,0,0);
+  return canvasToDataUrl(canvas);
+}
+
+async function detectBarcodeFromVariants(variants){
+  if(!('BarcodeDetector' in window)) return '';
+  try{
+    const detector = new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128']});
+    for(const v of variants.slice().reverse()){
+      const blob = await (await fetch(v.dataUrl)).blob();
+      const bitmap = await createImageBitmap(blob);
+      const codes = await detector.detect(bitmap);
+      if(codes && codes[0] && codes[0].rawValue){
+        return String(codes[0].rawValue);
+      }
+    }
+  }catch(err){
+    console.warn('BarcodeDetector failed', err);
+  }
+  return '';
+}
+
+async function multiPassOcr(variants, progressCb){
+  if(!window.Tesseract || !variants.length) return {text:'', confidence:0};
+  const selected = variants.slice(0,4);
+  let texts = [];
+  let confidences = [];
+  for(let i=0;i<selected.length;i++){
+    const v = selected[i];
+    try{
+      const result = await Tesseract.recognize(v.dataUrl, 'eng', {
+        logger: m => {
+          if(m.status === 'recognizing text' && m.progress && progressCb){
+            const pct = (i + m.progress) / selected.length;
+            progressCb(pct, 'Zone : ' + v.name);
+          }
+        },
+        tessedit_pageseg_mode: '6',
+        preserve_interword_spaces: '1'
+      });
+      const txt = result && result.data && result.data.text ? result.data.text : '';
+      texts.push(txt);
+      if(result && result.data && result.data.confidence) confidences.push(result.data.confidence);
+    }catch(err){
+      console.warn('OCR zone failed', v.name, err);
+    }
+  }
+  return {
+    text: texts.join('\\n'),
+    confidence: confidences.length ? Math.round(confidences.reduce((a,b)=>a+b,0)/confidences.length) : 0
+  };
 }
 
 function isOcrUseful(text, confidence){
@@ -294,7 +417,7 @@ function isOcrUseful(text, confidence){
   const letters = (clean.match(/[A-Za-zÀ-ÿ]/g) || []).length;
   const words = clean.split(/[^A-Za-zÀ-ÿ0-9'-]+/).filter(w => w.length >= 3);
   const weird = words.filter(w => !/[aeiouyàâäéèêëîïôöùûü]/i.test(w) && w.length > 5).length;
-  return clean.length >= 8 && letters >= 6 && words.length >= 2 && confidence >= 35 && weird <= Math.max(1, Math.floor(words.length/2));
+  return clean.length >= 8 && letters >= 6 && words.length >= 2 && confidence >= 30 && weird <= Math.max(2, Math.floor(words.length/2));
 }
 
 function parseLabelText(text){
@@ -303,10 +426,24 @@ function parseLabelText(text){
   const abv=(clean.match(/(\d{1,2}(?:[,.]\d)?)\s*(?:%|%vol|vol|ABV)/i)||[])[1]||'';
   const typeMatch=clean.match(/\b(rhum|rum|whisky|whiskey|bourbon|tequila|cognac|gin|armagnac|vodka|mezcal)\b/i);
   const type=typeMatch?normalizeType(typeMatch[1]):'';
-  const stop=/^(vol|alc|avec|sans|the|and|pour|depuis|straight|kentucky|distilled|bottled|trademark|reserve)$/i;
+  const stop=/^(vol|alc|avec|sans|the|and|pour|depuis|straight|kentucky|distilled|bottled|trademark|reserve|edition|limited)$/i;
   const words=clean.split(/[^A-Za-zÀ-ÿ0-9'-]+/).filter(w=>w.length>2 && !stop.test(w));
   const nameGuess=words.slice(0,7).join(' ');
   return {raw:clean,year,abv,type,name:nameGuess};
+}
+
+function detectKnownBottleHints(text){
+  const t=(text||'').toLowerCase();
+  if(/buffalo\s*trace|buffalo|trace/.test(t) && /bourbon|whisk|45|kentucky|sazerac|franklin/.test(t)){
+    return {name:'Buffalo Trace Kentucky Straight Bourbon Whiskey', brand:'Buffalo Trace', type:'Whisky', country:'États-Unis', abv:'45%', aromas:['Vanille','Caramel','Chêne','Épices douces'], source:'indice local Buffalo Trace'};
+  }
+  if(/macallan/.test(t)){
+    return {name:'Macallan', brand:'Macallan', type:'Whisky', country:'Écosse', aromas:['Fruits secs','Chêne','Épices douces'], source:'indice local Macallan'};
+  }
+  if(/depaz/.test(t)){
+    return {name:'Depaz', brand:'Depaz', type:'Rhum', country:'Martinique', aromas:['Vanille','Bois d’Inde','Fruits secs'], source:'indice local Depaz'};
+  }
+  return {};
 }
 
 function normalizeType(t){
@@ -317,30 +454,49 @@ function normalizeType(t){
   return t.charAt(0).toUpperCase()+t.slice(1);
 }
 
-function buildSearchQuery(f, parsed, reliableOcr){
-  return [f.name, f.keywords, f.brand, reliableOcr ? parsed.name : '', parsed.type, parsed.year]
+function buildSearchQuery(f, parsed, reliableOcr, hints){
+  return [f.name, f.keywords, f.brand, hints.name, reliableOcr ? parsed.name : '', parsed.type, parsed.year]
     .filter(Boolean).join(' ').replace(/\s+/g,' ').trim() || 'spiritueux';
 }
 
-async function searchOnlineBottle(query){
-  const q=encodeURIComponent(query);
+async function searchOnlineBottle(query, barcode){
   let best={};
 
-  try{
-    const offUrl=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,categories,countries,image_url`;
-    const r=await fetch(offUrl);
-    const data=await r.json();
-    const products=(data.products||[]).filter(x=>x.product_name||x.brands);
-    const p=products.find(x=>/whisky|whiskey|bourbon|rhum|rum|tequila|cognac|gin|spirit|alcool/i.test([x.categories,x.product_name,x.brands].join(' '))) || products[0] || {};
-    if(p.product_name)best.name=p.product_name;
-    if(p.brands)best.brand=String(p.brands).split(',')[0].trim();
-    if(p.countries)best.country=String(p.countries).split(',')[0].trim();
-    if(p.image_url)best.photo=p.image_url;
-    best.source='OpenFoodFacts';
-  }catch(err){console.warn('OpenFoodFacts failed',err)}
-
-  if(!best.name){
+  if(barcode){
     try{
+      const url=`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(barcode)}.json?fields=product_name,brands,categories,countries,image_url`;
+      const r=await fetch(url);
+      const data=await r.json();
+      if(data && data.product){
+        const p=data.product;
+        if(p.product_name)best.name=p.product_name;
+        if(p.brands)best.brand=String(p.brands).split(',')[0].trim();
+        if(p.countries)best.country=String(p.countries).split(',')[0].trim();
+        if(p.image_url)best.photo=p.image_url;
+        best.source='OpenFoodFacts code-barres';
+      }
+    }catch(err){console.warn('Barcode lookup failed',err)}
+  }
+
+  if(!best.name && query){
+    const q=encodeURIComponent(query);
+    try{
+      const offUrl=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=8&fields=product_name,brands,categories,countries,image_url`;
+      const r=await fetch(offUrl);
+      const data=await r.json();
+      const products=(data.products||[]).filter(x=>x.product_name||x.brands);
+      const p=products.find(x=>/whisky|whiskey|bourbon|rhum|rum|tequila|cognac|gin|spirit|alcool/i.test([x.categories,x.product_name,x.brands].join(' '))) || products[0] || {};
+      if(p.product_name)best.name=p.product_name;
+      if(p.brands)best.brand=String(p.brands).split(',')[0].trim();
+      if(p.countries)best.country=String(p.countries).split(',')[0].trim();
+      if(p.image_url)best.photo=p.image_url;
+      best.source='OpenFoodFacts recherche';
+    }catch(err){console.warn('OpenFoodFacts failed',err)}
+  }
+
+  if(!best.name && query){
+    try{
+      const q=encodeURIComponent(query);
       const w=await fetch(`https://fr.wikipedia.org/w/api.php?action=opensearch&search=${q}&limit=1&format=json&origin=*`);
       const data=await w.json();
       if(data && data[1] && data[1][0]){
@@ -352,14 +508,14 @@ async function searchOnlineBottle(query){
   return best;
 }
 
-function mergePrefill(f, parsed, online, reliableOcr, query){
-  const name = f.name || online.name || (reliableOcr ? parsed.name : '') || f.keywords || 'Bouteille à compléter';
-  const brand = f.brand || online.brand || guessBrand(name) || '';
-  const type = f.type || parsed.type || guessType([name, parsed.raw, query].join(' ')) || 'Autre';
-  const country = f.country || online.country || '';
-  const abv = f.abv || parsed.abv || '';
-  const aromas = f.aromas.length ? f.aromas : suggestAromas(type, [parsed.raw, name, query].join(' '));
-  return {name,brand,type,country,abv,aromas,photo: photo || online.photo || '',source:online.source||(reliableOcr?'OCR':'Recherche assistée')};
+function mergePrefill(f, parsed, online, reliableOcr, query, hints, barcode){
+  const name = f.name || online.name || hints.name || (reliableOcr ? parsed.name : '') || f.keywords || 'Bouteille à compléter';
+  const brand = f.brand || online.brand || hints.brand || guessBrand(name) || '';
+  const type = f.type || hints.type || parsed.type || guessType([name, parsed.raw, query].join(' ')) || 'Autre';
+  const country = f.country || online.country || hints.country || '';
+  const abv = f.abv || hints.abv || parsed.abv || '';
+  const aromas = f.aromas.length ? f.aromas : (hints.aromas || suggestAromas(type, [parsed.raw, name, query].join(' ')));
+  return {name,brand,type,country,abv,aromas,photo: photo || online.photo || '',source:hints.source||online.source||(reliableOcr?'OCR multi-zones':'Recherche assistée')};
 }
 
 function guessBrand(name){
