@@ -1,15 +1,12 @@
-# Liquorne — PWA V3
+# Liquorne — PWA V3.1 corrigée
 
-## Corrections
-- Logo PNG réintégré dans `icons/` depuis le logo fourni.
-- Icônes PWA `icon-192.png` et `icon-512.png` ajoutées.
-- Pré-remplissage non simulé :
-  - OCR local navigateur via Tesseract.js ;
-  - recherche en ligne via OpenFoodFacts ;
-  - fallback Wikipedia ;
-  - parsing ABV / type / millésime depuis l’étiquette.
+Correction importante :
+- correction d'une erreur JavaScript dans le bouton "Valider et continuer" du pré-remplissage ;
+- nouveau cache service worker pour éviter que le navigateur garde la V3 cassée ;
+- logo PNG conservé ;
+- OCR réel via Tesseract.js + recherche OpenFoodFacts / Wikipedia.
 
-## Limitations normales d’une PWA statique
-- Le pré-remplissage dépend d’Internet.
-- Certaines bouteilles de spiritueux peuvent ne pas être trouvées dans les bases publiques.
-- Pour une reconnaissance fiable niveau production, il faudra ensuite un backend avec une vraie API produit / moteur de recherche.
+Après déploiement sur GitHub Pages :
+1. vider le cache du site si besoin ;
+2. ou ouvrir Chrome > Infos site > Effacer les données ;
+3. recharger la page.

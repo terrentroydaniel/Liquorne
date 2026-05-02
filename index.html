@@ -161,6 +161,8 @@ async function analyzeAndPrefill(){
         }
       });
       ocrText = (result && result.data && result.data.text) ? result.data.text : '';
+    } else if(photo && !window.Tesseract) {
+      toast('OCR non chargé, recherche à partir des champs saisis.');
     }
   }catch(err){
     console.warn('OCR failed', err);
@@ -271,7 +273,7 @@ function applyPrefill(m){
   $('#pvAromas').innerHTML=(m.aromas||[]).map(x=>`<span class="tag">${x}</span>`).join('');
   window.__lastPrefillPhoto=m.photo||photo||'';
 }
-$('#validatePrefill').onclick=()=>{add({name:$('#pvName').textContent,brand:$('#pvBrand').textContent,type:$('#pvType').textContent,country:$('#pvCountry').textContent,abv:$('#pvAbv').textContent,aromas:Array.from($('#pvAromas').querySelectorAll('.tag')).map(x=>x.textContent),(window.__lastPrefillPhoto||photo)});toast('Pré-remplissage validé.');nav('detail')};
+$('#validatePrefill').onclick=()=>{add({name:$('#pvName').textContent,brand:$('#pvBrand').textContent,type:$('#pvType').textContent,country:$('#pvCountry').textContent,abv:$('#pvAbv').textContent,aromas:Array.from($('#pvAromas').querySelectorAll('.tag')).map(x=>x.textContent),photo:(window.__lastPrefillPhoto||photo)});toast('Pré-remplissage validé.');nav('detail')};
 function file(f){if(!f)return;let r=new FileReader();r.onload=()=>{photo=r.result;$('#photoPreview').style.display='block';$('#photoPreview img').src=photo;toast('Photo ajoutée.')};r.readAsDataURL(f)}
 $('#cameraInput').onchange=e=>file(e.target.files[0]);$('#galleryInput').onchange=e=>file(e.target.files[0]);
 $('#saveTaste').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)return;b.note=$('#tasteNote').value.trim();if(!b.rating)b.rating='4.5';save();renderAll();toast('Note enregistrée.')};
