@@ -77,15 +77,15 @@ h3{font-size:1.05rem}
   <div class="quick-grid"><label class="panel quick-card" for="cameraInput"><span class="big-icon">📷</span><h3>Prendre une photo</h3><p class="brand-sub">Photo directe de l’étiquette.</p></label><label class="panel quick-card" for="galleryInput"><span class="big-icon">🖼️</span><h3>Importer depuis la galerie</h3><p class="brand-sub">Sélection depuis vos photos.</p></label><input id="cameraInput" type="file" accept="image/*" capture="environment" hidden/><input id="galleryInput" type="file" accept="image/*" hidden/></div>
   <div class="photo-preview" id="photoPreview"><img alt="Photo sélectionnée"/></div>
   <div class="panel" style="padding:16px;margin-bottom:20px">✨ Reconnaissance de l’étiquette et recherche en fond pour <strong style="color:var(--gold)">pré-remplir automatiquement</strong>.</div>
-  <h2>Comment ça marche</h2><div class="steps"><div class="step"><div class="circle">1</div><strong>Photo</strong>Prenez ou importez</div><div class="step"><div class="circle">2</div><strong>Analyse</strong>Recherche en fond</div><div class="step"><div class="circle">3</div><strong>Validation</strong>Vous vérifiez</div></div>
+  <h2>Comment ça marche</h2><div class="steps"><div class="step"><div class="circle">1</div><strong>Photo</strong>Prenez ou importez</div><div class="step"><div class="circle">2</div><strong>Analyse</strong>Recherche en fond réelle</div><div class="step"><div class="circle">3</div><strong>Validation</strong>Vous vérifiez</div></div>
   <h2>Saisie manuelle</h2>
   <form id="addForm" class="form-grid"><div class="full"><label>Nom</label><input id="fName" placeholder="Ex. Depaz 2003 Brut de Fût" required/></div><div><label>Marque</label><input id="fBrand" placeholder="Ex. Depaz"/></div><div><label>Type</label><select id="fType"><option>Whisky</option><option>Rhum</option><option>Tequila</option><option>Cognac</option><option>Gin</option><option>Autre</option></select></div><div><label>Pays</label><input id="fCountry" placeholder="Ex. Martinique"/></div><div><label>ABV (%)</label><input id="fAbv" inputmode="decimal" placeholder="Ex. 45"/></div><div class="full"><label>Arômes</label><input id="fAromas" placeholder="vanille, caramel, bois, fruits secs"/></div><div class="full btn-row"><button class="btn primary" type="button" id="runAnalysis">✨ Lancer l’analyse</button><button class="btn secondary" type="submit">Enregistrer manuellement</button></div></form>
 </section>
 
 <section class="page" data-page="prefill">
   <div class="topbar"><button class="icon-btn" data-nav="add">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Pré-remplissage détecté</h1></div><button class="icon-btn bell" data-soon></button></div>
-  <div class="panel match"><div><h3>Correspondance probable trouvée</h3><p class="brand-sub">Analyse photo + recherche web simulée pour cette V2.</p></div><div><div class="confidence">92%</div><p class="brand-sub" style="text-align:center">Confiance</p></div></div>
-  <div class="panel" style="padding:16px"><div class="detected"><div class="bottle" id="detectedPreview"></div><div><h1 id="detectedTitle">Depaz 2003 Brut de Fût</h1><div class="tag-row"><span class="tag">Rhum</span><span class="tag">Brut de fût</span></div></div></div><div class="fields"><div class="field-row"><div>Nom</div><div class="value" id="pvName">Depaz 2003 Brut de Fût</div><button class="see">✎</button></div><div class="field-row"><div>Marque</div><div class="value" id="pvBrand">Depaz</div><button class="see">✎</button></div><div class="field-row"><div>Type</div><div class="value" id="pvType">Rhum</div><button class="see">✎</button></div><div class="field-row"><div>Pays</div><div class="value" id="pvCountry">Martinique</div><button class="see">✎</button></div><div class="field-row"><div>ABV</div><div class="value" id="pvAbv">45%</div><button class="see">✎</button></div></div><h2 style="margin-top:18px">Arômes suggérés</h2><div class="tag-row" id="pvAromas"></div><div class="empty" style="margin-top:14px">Ces informations sont proposées automatiquement. Vérifiez-les avant validation.</div></div>
+  <div class="panel match"><div><h3>Correspondance probable trouvée</h3><p class="brand-sub">OCR local de la photo + recherche OpenFoodFacts / Wikipedia en fond.</p></div><div><div class="confidence">92%</div><p class="brand-sub" style="text-align:center">Confiance</p></div></div>
+  <div class="panel" style="padding:16px"><div class="detected"><div class="bottle" id="detectedPreview"></div><div><h1 id="detectedTitle">Depaz 2003 Brut de Fût</h1><div class="tag-row"><span class="tag">Rhum</span><span class="tag">Brut de fût</span></div></div></div><div class="fields"><div class="field-row"><div>Nom</div><div class="value" id="pvName">Depaz 2003 Brut de Fût</div><button class="see">✎</button></div><div class="field-row"><div>Marque</div><div class="value" id="pvBrand">Depaz</div><button class="see">✎</button></div><div class="field-row"><div>Type</div><div class="value" id="pvType">Rhum</div><button class="see">✎</button></div><div class="field-row"><div>Pays</div><div class="value" id="pvCountry">Martinique</div><button class="see">✎</button></div><div class="field-row"><div>ABV</div><div class="value" id="pvAbv">45%</div><button class="see">✎</button></div></div><h2 style="margin-top:18px">Arômes suggérés</h2><div class="tag-row" id="pvAromas"></div><div class="empty" style="margin-top:14px">Ces informations viennent d’une analyse OCR locale et d’une recherche en ligne. Vérifiez-les avant validation.</div></div>
   <div class="btn-row"><button class="btn primary" id="validatePrefill">✓ Valider et continuer</button><button class="btn secondary" data-nav="add">Corriger</button></div>
 </section>
 
@@ -120,8 +120,9 @@ h3{font-size:1.05rem}
 <nav class="bottom-nav"><button class="nav-item active" data-nav="explorer">⌾<span>Explorer</span></button><button class="nav-item" data-nav="cave">♟<span>Cave</span></button><button class="nav-plus" data-nav="add">+</button><button class="nav-item" data-nav="journal">▣<span>Journal</span></button><button class="nav-item" data-nav="profil">♙<span>Profil</span></button></nav>
 <div class="toast" id="toast"></div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-const KEY='liquorne.v2.final.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
+const KEY='liquorne.v3.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const uid=()=>Date.now().toString(36)+Math.random().toString(16).slice(2);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
@@ -144,8 +145,133 @@ function radarVals(ar){let t=ar.join(' ').toLowerCase();return [/fruit|agrume|tr
 function add(data){let b={id:uid(),name:data.name||'Nouvelle bouteille',brand:data.brand||'',type:data.type||'Autre',country:data.country||'',abv:data.abv?(String(data.abv).includes('%')?String(data.abv):String(data.abv)+'%'):'',aromas:data.aromas?.length?data.aromas:['Vanille','Caramel','Boisé'],rating:data.rating||'',status:data.status||'todo',note:'',photo:data.photo||'',createdAt:Date.now()};bottles.push(b);currentId=b.id;save();renderAll();return b}
 function form(){return{name:$('#fName').value.trim(),brand:$('#fBrand').value.trim(),type:$('#fType').value,country:$('#fCountry').value.trim(),abv:$('#fAbv').value.trim(),aromas:$('#fAromas').value.split(',').map(x=>x.trim()).filter(Boolean),photo}}
 $('#addForm').addEventListener('submit',e=>{e.preventDefault();if(!$('#fName').value.trim())return toast('Renseignez au moins le nom.');add(form());toast('Bouteille ajoutée.');nav('detail')});
-$('#runAnalysis').onclick=()=>{let f=form(),a=f.aromas.length?f.aromas:['Vanille','Bois d’Inde','Fruits secs','Caramel'];$('#detectedTitle').textContent=f.name||'Depaz 2003 Brut de Fût';$('#pvName').textContent=f.name||'Depaz 2003 Brut de Fût';$('#pvBrand').textContent=f.brand||'Depaz';$('#pvType').textContent=f.type||'Rhum';$('#pvCountry').textContent=f.country||'Martinique';$('#pvAbv').textContent=f.abv?(String(f.abv).includes('%')?f.abv:f.abv+'%'):'45%';$('#pvAromas').innerHTML=a.map(x=>`<span class="tag">${x}</span>`).join('');nav('prefill')};
-$('#validatePrefill').onclick=()=>{add({name:$('#pvName').textContent,brand:$('#pvBrand').textContent,type:$('#pvType').textContent,country:$('#pvCountry').textContent,abv:$('#pvAbv').textContent,aromas:Array.from($('#pvAromas').querySelectorAll('.tag')).map(x=>x.textContent),photo});toast('Pré-remplissage validé.');nav('detail')};
+$('#runAnalysis').onclick=analyzeAndPrefill;
+
+async function analyzeAndPrefill(){
+  let f=form();
+  toast('Analyse en cours : OCR + recherche en ligne…');
+  let ocrText='';
+  try{
+    if(photo && window.Tesseract){
+      const result = await Tesseract.recognize(photo, 'fra+eng', {
+        logger: m => {
+          if(m.status === 'recognizing text' && m.progress){
+            toast('OCR en cours… '+Math.round(m.progress*100)+'%');
+          }
+        }
+      });
+      ocrText = (result && result.data && result.data.text) ? result.data.text : '';
+    }
+  }catch(err){
+    console.warn('OCR failed', err);
+    toast('OCR indisponible, recherche à partir des champs saisis.');
+  }
+
+  const parsed = parseLabelText(ocrText);
+  const query = buildSearchQuery(f, parsed);
+  let online = {};
+  try{
+    online = await searchOnlineBottle(query);
+  }catch(err){
+    console.warn('Online lookup failed', err);
+  }
+
+  const merged = mergePrefill(f, parsed, online);
+  applyPrefill(merged);
+  nav('prefill');
+}
+
+function parseLabelText(text){
+  const clean=(text||'').replace(/\s+/g,' ').trim();
+  const year=(clean.match(/\b(19[5-9]\d|20[0-3]\d)\b/)||[])[0]||'';
+  const abv=(clean.match(/(\d{1,2}(?:[,.]\d)?)\s*(?:%|%vol|vol|ABV)/i)||[])[1]||'';
+  const typeMatch=clean.match(/\b(rhum|rum|whisky|whiskey|tequila|cognac|gin|armagnac|vodka|mezcal)\b/i);
+  const type=typeMatch?normalizeType(typeMatch[1]):'';
+  const words=clean.split(/[^A-Za-zÀ-ÿ0-9'-]+/).filter(w=>w.length>2 && !/^(vol|alc|avec|sans|the|and|pour|depuis)$/i.test(w));
+  const nameGuess=words.slice(0,7).join(' ');
+  return {raw:clean,year,abv,type,name:nameGuess};
+}
+
+function normalizeType(t){
+  t=(t||'').toLowerCase();
+  if(t==='rum')return'Rhum';
+  if(t==='whiskey')return'Whisky';
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+
+function buildSearchQuery(f, parsed){
+  return [f.name,f.brand,parsed.name,parsed.type,parsed.year].filter(Boolean).join(' ').trim() || 'spiritueux';
+}
+
+async function searchOnlineBottle(query){
+  const q=encodeURIComponent(query);
+  const offUrl=`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${q}&search_simple=1&action=process&json=1&page_size=5&fields=product_name,brands,categories,countries,image_url`;
+  let best={};
+  try{
+    const r=await fetch(offUrl);
+    const data=await r.json();
+    const p=(data.products||[]).find(x=>x.product_name||x.brands) || {};
+    if(p.product_name)best.name=p.product_name;
+    if(p.brands)best.brand=String(p.brands).split(',')[0].trim();
+    if(p.countries)best.country=String(p.countries).split(',')[0].trim();
+    if(p.image_url)best.photo=p.image_url;
+    best.source='OpenFoodFacts';
+  }catch(err){console.warn('OFF failed',err)}
+
+  if(!best.name){
+    try{
+      const w=await fetch(`https://fr.wikipedia.org/w/api.php?action=opensearch&search=${q}&limit=1&format=json&origin=*`);
+      const data=await w.json();
+      if(data && data[1] && data[1][0]){
+        best.name=data[1][0];
+        best.source='Wikipedia';
+      }
+    }catch(err){console.warn('Wikipedia failed',err)}
+  }
+  return best;
+}
+
+function mergePrefill(f, parsed, online){
+  const name = f.name || online.name || parsed.name || 'Bouteille à compléter';
+  const brand = f.brand || online.brand || guessBrand(name) || '';
+  const type = f.type || parsed.type || guessType(name+' '+parsed.raw) || 'Autre';
+  const country = f.country || online.country || '';
+  const abv = f.abv || parsed.abv || '';
+  const aromas = f.aromas.length ? f.aromas : suggestAromas(type, parsed.raw+' '+name);
+  return {name,brand,type,country,abv,aromas,photo: photo || online.photo || '',source:online.source||'OCR'};
+}
+
+function guessBrand(name){
+  return (name||'').split(/\s+/).slice(0,2).join(' ');
+}
+function guessType(text){
+  const m=(text||'').match(/\b(rhum|rum|whisky|whiskey|tequila|cognac|gin|armagnac|vodka|mezcal)\b/i);
+  return m?normalizeType(m[1]):'';
+}
+function suggestAromas(type,text){
+  text=(text||'').toLowerCase();
+  const set=new Set();
+  if(/vanil|caramel|miel|sherry|xérès/.test(text))['Vanille','Caramel','Miel'].forEach(x=>set.add(x));
+  if(/rhum|rum|tropical|canne|molasse/.test(text))['Fruits tropicaux','Caramel','Épices douces'].forEach(x=>set.add(x));
+  if(/whisk|single malt|oak|chêne|tourb|smok|peat/.test(text))['Boisé','Chêne','Fumé'].forEach(x=>set.add(x));
+  if(/cognac|armagnac/.test(text))['Fruits secs','Boisé','Vanille'].forEach(x=>set.add(x));
+  if(/tequila|mezcal|agave/.test(text))['Agave','Végétal','Agrumes'].forEach(x=>set.add(x));
+  if(/gin|botan/.test(text))['Genièvre','Agrumes','Floral'].forEach(x=>set.add(x));
+  if(!set.size)['Vanille','Caramel','Boisé'].forEach(x=>set.add(x));
+  return [...set].slice(0,5);
+}
+
+function applyPrefill(m){
+  $('#detectedTitle').textContent=m.name;
+  $('#pvName').textContent=m.name;
+  $('#pvBrand').textContent=m.brand||'À compléter';
+  $('#pvType').textContent=m.type||'Autre';
+  $('#pvCountry').textContent=m.country||'À compléter';
+  $('#pvAbv').textContent=m.abv ? (String(m.abv).includes('%')?m.abv:m.abv+'%') : 'À compléter';
+  $('#pvAromas').innerHTML=(m.aromas||[]).map(x=>`<span class="tag">${x}</span>`).join('');
+  window.__lastPrefillPhoto=m.photo||photo||'';
+}
+$('#validatePrefill').onclick=()=>{add({name:$('#pvName').textContent,brand:$('#pvBrand').textContent,type:$('#pvType').textContent,country:$('#pvCountry').textContent,abv:$('#pvAbv').textContent,aromas:Array.from($('#pvAromas').querySelectorAll('.tag')).map(x=>x.textContent),(window.__lastPrefillPhoto||photo)});toast('Pré-remplissage validé.');nav('detail')};
 function file(f){if(!f)return;let r=new FileReader();r.onload=()=>{photo=r.result;$('#photoPreview').style.display='block';$('#photoPreview img').src=photo;toast('Photo ajoutée.')};r.readAsDataURL(f)}
 $('#cameraInput').onchange=e=>file(e.target.files[0]);$('#galleryInput').onchange=e=>file(e.target.files[0]);
 $('#saveTaste').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)return;b.note=$('#tasteNote').value.trim();if(!b.rating)b.rating='4.5';save();renderAll();toast('Note enregistrée.')};

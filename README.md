@@ -1,13 +1,15 @@
-# Liquorne — PWA V2 finale
+# Liquorne — PWA V3
 
-Corrections :
-- bibliothèque vide au démarrage ;
-- suppression des bouteilles/images de démonstration ;
-- plus aucune image externe donc plus de visuel cassé ;
-- bottom navigation fixe ;
-- ajout manuel + photo galerie/caméra ;
-- pré-remplissage simulé + validation ;
-- fiche bouteille avec radar aromatique ;
-- cave, journal et profil alimentés par vos propres données locales.
+## Corrections
+- Logo PNG réintégré dans `icons/` depuis le logo fourni.
+- Icônes PWA `icon-192.png` et `icon-512.png` ajoutées.
+- Pré-remplissage non simulé :
+  - OCR local navigateur via Tesseract.js ;
+  - recherche en ligne via OpenFoodFacts ;
+  - fallback Wikipedia ;
+  - parsing ABV / type / millésime depuis l’étiquette.
 
-À publier tel quel à la racine d’un dépôt GitHub Pages.
+## Limitations normales d’une PWA statique
+- Le pré-remplissage dépend d’Internet.
+- Certaines bouteilles de spiritueux peuvent ne pas être trouvées dans les bases publiques.
+- Pour une reconnaissance fiable niveau production, il faudra ensuite un backend avec une vraie API produit / moteur de recherche.
