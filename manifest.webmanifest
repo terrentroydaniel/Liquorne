@@ -1,0 +1,25 @@
+{
+  "name": "Liquorne",
+  "short_name": "Liquorne",
+  "description": "Votre cave, vos dégustations et vos découvertes de spiritueux.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#061221",
+  "theme_color": "#061221",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
