@@ -121,14 +121,36 @@ h3{font-size:1.05rem}
   font-size:.82rem;
   line-height:1.35;
 }
+
+.action-sheet{
+  position:fixed;
+  inset:auto 14px calc(var(--nav) + 22px + env(safe-area-inset-bottom)) 14px;
+  max-width:492px;
+  margin:auto;
+  left:50%;
+  transform:translateX(-50%) translateY(16px);
+  opacity:0;
+  pointer-events:none;
+  z-index:300;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:rgba(8,18,32,.97);
+  box-shadow:0 24px 80px rgba(0,0,0,.55);
+  padding:12px;
+  transition:.2s ease;
+}
+.action-sheet.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.action-sheet button{width:100%;min-height:50px;text-align:left;border-radius:14px;padding:12px 14px;color:var(--text);font-weight:800}
+.action-sheet button:hover{background:rgba(255,255,255,.06)}
+.action-danger{color:#ffb1a8!important}
 </style>
 </head>
 <body>
 <main class="app">
 <section class="page active" data-page="explorer">
-  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre cave, vos dégustations, vos découvertes.</div></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div>
-  <div class="search-row"><div class="search"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Rechercher dans votre cave..."/></div><button class="icon-btn" data-soon>☰</button></div>
-  <div class="chips"><button class="chip active">Whisky</button><button class="chip">Rhum</button><button class="chip">Tequila</button><button class="chip">Cognac</button><button class="chip">Gin</button></div>
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre cave, vos dégustations, vos découvertes.</div></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div>
+  <div class="search-row"><div class="search"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input placeholder="Rechercher dans votre cave..."/></div><button class="icon-btn" data-action="focus-search">☰</button></div>
+  <div class="chips"><button class="chip active" data-explore-filter="all">Tout</button><button class="chip" data-explore-filter="Whisky">Whisky</button><button class="chip" data-explore-filter="Rhum">Rhum</button><button class="chip" data-explore-filter="Tequila">Tequila</button><button class="chip" data-explore-filter="Cognac">Cognac</button><button class="chip" data-explore-filter="Gin">Gin</button></div>
   <div class="stats"><div class="stat"><div>🍾</div><div class="num" id="stOwned">0</div><div class="lbl">Possédées</div></div><div class="stat"><div>🥃</div><div class="num" id="stTasted">0</div><div class="lbl">Goûtées</div></div><div class="stat"><div>🔖</div><div class="num" id="stWish">0</div><div class="lbl">Wishlist</div></div><div class="stat"><div>☆</div><div class="num" id="stAvg">—</div><div class="lbl">Note moyenne</div></div></div>
   <div class="panel onboard" id="onboard"><h2>Votre cave commence ici</h2><p>Ajoutez votre première bouteille par photo, import galerie ou saisie manuelle. Liquorne gardera ensuite votre historique, vos notes et votre palette aromatique.</p><div class="actions"><button class="btn primary" data-nav="add">+ Ajouter</button><button class="btn secondary" data-nav="profil">Profil gustatif</button></div></div>
   <div class="section-head"><h2>À redécouvrir</h2><button class="see" data-nav="cave">Voir tout ›</button></div><div id="rediscover" class="h-scroll"></div>
@@ -136,7 +158,7 @@ h3{font-size:1.05rem}
 </section>
 
 <section class="page" data-page="add">
-  <div class="topbar"><button class="icon-btn" data-nav="explorer">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Ajouter une bouteille</h1><p class="brand-sub">Ajoutez une nouvelle bouteille à votre cave.</p></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div>
+  <div class="topbar"><button class="icon-btn" data-nav="explorer">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Ajouter une bouteille</h1><p class="brand-sub">Ajoutez une nouvelle bouteille à votre cave.</p></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div>
   <h2>Ajoutez rapidement</h2>
   <div class="quick-grid"><label class="panel quick-card" for="cameraInput"><span class="big-icon">📷</span><h3>Prendre une photo</h3><p class="brand-sub">Photo directe de l’étiquette.</p></label><label class="panel quick-card" for="galleryInput"><span class="big-icon">🖼️</span><h3>Importer depuis la galerie</h3><p class="brand-sub">Sélection depuis vos photos.</p></label><input id="cameraInput" type="file" accept="image/*" capture="environment" hidden/><input id="galleryInput" type="file" accept="image/*" hidden/></div>
   <div class="photo-preview" id="photoPreview"><img alt="Photo sélectionnée"/></div>
@@ -147,52 +169,61 @@ h3{font-size:1.05rem}
 </section>
 
 <section class="page" data-page="prefill">
-  <div class="topbar"><button class="icon-btn" data-nav="add">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Pré-remplissage détecté</h1></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div>
+  <div class="topbar"><button class="icon-btn" data-nav="add">←</button><div class="brand" style="text-align:center"><h1 style="font-size:1.85rem">Pré-remplissage détecté</h1></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div>
   <div class="panel match"><div><h3>Correspondance probable trouvée</h3><p class="brand-sub">Recherche assistée : OCR si exploitable + mots-clés utilisateur + OpenFoodFacts / Wikipedia.</p></div><div><div class="confidence">92%</div><p class="brand-sub" style="text-align:center">Confiance</p></div></div>
   <div class="panel" style="padding:16px"><div class="detected"><div class="bottle" id="detectedPreview"></div><div><h1 id="detectedTitle">Depaz 2003 Brut de Fût</h1><div class="tag-row"><span class="tag">Rhum</span><span class="tag">Brut de fût</span></div></div></div><div class="fields"><div class="field-row"><div>Nom</div><div class="value" id="pvName">Depaz 2003 Brut de Fût</div><button class="see">✎</button></div><div class="field-row"><div>Marque</div><div class="value" id="pvBrand">Depaz</div><button class="see">✎</button></div><div class="field-row"><div>Type</div><div class="value" id="pvType">Rhum</div><button class="see">✎</button></div><div class="field-row"><div>Pays</div><div class="value" id="pvCountry">Martinique</div><button class="see">✎</button></div><div class="field-row"><div>ABV</div><div class="value" id="pvAbv">45%</div><button class="see">✎</button></div></div><h2 style="margin-top:18px">Arômes suggérés</h2><div class="tag-row" id="pvAromas"></div><div class="empty" style="margin-top:14px">Ces informations viennent d’une analyse OCR locale et d’une recherche en ligne. Vérifiez-les avant validation.</div></div>
   <div class="btn-row"><button class="btn primary" id="validatePrefill">✓ Valider et continuer</button><button class="btn secondary" data-nav="add">Corriger</button></div>
 </section>
 
 <section class="page" data-page="detail">
-  <div class="topbar"><button class="icon-btn" data-nav="cave">←</button><div class="brand" style="text-align:center"><div class="brand-title" style="font-size:1.5rem">Liquorne</div></div><button class="icon-btn" data-soon>↗</button><button class="icon-btn" data-soon>⋯</button></div>
+  <div class="topbar"><button class="icon-btn" data-nav="cave">←</button><div class="brand" style="text-align:center"><div class="brand-title" style="font-size:1.5rem">Liquorne</div></div><button class="icon-btn" data-action="share">↗</button><button class="icon-btn" data-action="detail-menu">⋯</button></div>
   <div class="product-top"><div class="bottle product-img" id="detailImage"></div><div class="product-info"><h1 id="detailName">Votre bouteille</h1><div class="meta" id="detailOrigin">—</div><div class="meta" id="detailType">—</div><p class="brand-sub" id="detailAbv">—</p><div class="split"><div><div class="big" id="detailAvg">—</div><div>Note moyenne</div></div><div class="line"></div><div><div class="big" id="detailMine">—</div><div>Ma note</div></div></div><div class="status-pill"><span>🍾 Possédée</span><span>›</span></div></div></div>
   <div class="panel" style="padding:16px;margin-top:18px"><h2>Palette aromatique</h2><div class="radar-wrap"><div class="radar" id="radarDetail"></div><div><p class="brand-sub">Intensité aromatique</p><div class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><p class="brand-sub">Arômes principaux</p><div class="tag-row" id="detailTags"></div></div></div></div>
-  <div class="panel" style="padding:16px;margin-top:14px"><div class="section-head" style="margin-top:0"><h2>Mes notes</h2><button class="see" data-soon>Modifier</button></div><textarea id="tasteNote" placeholder="Ajoutez vos impressions : nez, bouche, finale, contexte..."></textarea><div class="btn-row"><button class="btn secondary" id="saveTaste">Enregistrer la note</button></div></div>
+  <div class="panel" style="padding:16px;margin-top:14px"><div class="section-head" style="margin-top:0"><h2>Mes notes</h2><button class="see" data-action="focus-note">Modifier</button></div><textarea id="tasteNote" placeholder="Ajoutez vos impressions : nez, bouche, finale, contexte..."></textarea><div class="btn-row"><button class="btn secondary" id="saveTaste">Enregistrer la note</button></div></div>
   <div class="actions"><button class="btn secondary" id="rateBottle">☆ Noter</button><button class="btn secondary" id="toggleOwned">🍾 Statut</button></div>
 </section>
 
 <section class="page" data-page="cave">
-  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Ma cave, mon patrimoine.</div></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div><h1>Ma cave</h1>
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Ma cave, mon patrimoine.</div></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div><h1>Ma cave</h1>
   <div class="cellar-stats"><div class="panel"><div class="stat"><div class="num" id="cTotal">0</div><div class="lbl">Bouteilles</div></div><div class="stat"><div class="num" id="cOpen">0</div><div class="lbl">Ouvertes</div></div></div><div class="panel"><div class="stat"><div class="num" id="cWish">0</div><div class="lbl">Wishlist</div></div><div class="stat"><div class="num" id="cAvg">—</div><div class="lbl">Note moyenne</div></div></div></div>
   <div class="tabs"><button class="chip active" data-cave-filter="all">Toutes</button><button class="chip" data-cave-filter="open">Ouvertes</button><button class="chip" data-cave-filter="todo">À goûter</button><button class="chip" data-cave-filter="wish">Wishlist</button></div>
   <div class="search-row"><div class="search"><svg viewBox="0 0 24 24" fill="none"><path d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="caveSearch" placeholder="Rechercher une bouteille..."/></div><button class="chip" id="sortBtn">↕ Trier</button></div><div id="caveList" class="list"></div>
 </section>
 
 <section class="page" data-page="journal">
-  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Journal de dégustation</div></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div>
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Journal de dégustation</div></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div>
   <div class="panel" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;margin-bottom:14px"><div class="stat"><div class="num" id="jCount">0</div><div class="lbl">Dégustations</div></div><div class="stat"><div class="num" id="jAvg">—</div><div class="lbl">Note moyenne</div></div></div>
   <button class="btn primary" style="width:100%;margin-bottom:14px" data-nav="add">+ Ajouter une dégustation</button><div id="journalEmpty" class="empty"><strong>Aucune dégustation</strong>Vos notes apparaîtront ici après avoir noté une bouteille.</div><div id="journalCards" class="list"></div>
 </section>
 
 <section class="page" data-page="profil">
-  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre signature aromatique.</div></div><button class="icon-btn bell" data-soon aria-label="Notifications"></button></div><h1>Mon profil gustatif</h1><p class="brand-sub">Construit automatiquement à partir de votre cave et de vos dégustations.</p>
+  <div class="topbar"><div class="logo"></div><div class="brand"><div class="brand-title">Liquorne</div><div class="brand-sub">Votre signature aromatique.</div></div><button class="icon-btn bell" data-action="notifications" aria-label="Notifications"></button></div><h1>Mon profil gustatif</h1><p class="brand-sub">Construit automatiquement à partir de votre cave et de vos dégustations.</p>
   <div class="panel profile-hero"><div class="avatar"></div><div><p class="brand-sub">Ma signature gustative</p><h2 id="tasteSignature" style="color:var(--gold);font-size:1.5rem;margin:4px 0 8px">À construire</h2><p id="tasteSentence">Ajoutez quelques bouteilles pour faire apparaître vos préférences.</p><div class="attr-row"><span class="attr" id="pAvg">★ —</span><span class="attr" id="pTasted">0 dégustation</span><span class="attr" id="pWishlist">0 wishlist</span></div></div></div>
   <div class="profile-grid"><div class="panel" style="padding:14px"><h2>Ma palette aromatique</h2><div class="radar" id="radarProfile"></div></div><div class="side-stack"><div class="panel" style="padding:14px"><h3>Types préférés</h3><div id="prefTypes" class="pref"></div></div><div class="panel" style="padding:14px"><h3>ABV moyen</h3><div id="pAbv" style="font-size:2rem;font-family:var(--serif)">—</div><p class="brand-sub">Basé sur votre cave</p></div></div></div>
   <div class="panel" style="padding:14px;margin-top:12px"><h2>Top arômes</h2><div class="aromas" id="topAromas"></div></div>
 </section>
 
 <nav class="bottom-nav"><button class="nav-item active" data-nav="explorer"><span>Explorer</span></button><button class="nav-item" data-nav="cave"><span>Cave</span></button><button class="nav-plus" data-nav="add">+</button><button class="nav-item" data-nav="journal"><span>Journal</span></button><button class="nav-item" data-nav="profil"><span>Profil</span></button></nav>
+
+<div class="action-sheet" id="actionSheet" aria-hidden="true">
+  <button data-sheet-action="rate">☆ Noter cette bouteille</button>
+  <button data-sheet-action="toggle-status">🍾 Changer le statut</button>
+  <button data-sheet-action="wishlist">🔖 Ajouter / retirer de la wishlist</button>
+  <button data-sheet-action="duplicate">⧉ Dupliquer la fiche</button>
+  <button data-sheet-action="delete" class="action-danger">Supprimer la bouteille</button>
+  <button data-sheet-action="close">Fermer</button>
+</div>
 <div class="toast" id="toast"></div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script>
-const KEY='liquorne.v3_4.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
+const KEY='liquorne.v3_5.bottles';let bottles=[],currentId=null,photo=null,filter='all',sortDesc=true;
 const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
 const uid=()=>Date.now().toString(36)+Math.random().toString(16).slice(2);
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 function load(){try{bottles=JSON.parse(localStorage.getItem(KEY)||'[]')}catch{bottles=[]}}function save(){localStorage.setItem(KEY,JSON.stringify(bottles))}
 function nav(p){$$('.page').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$$('.nav-item').forEach(x=>x.classList.toggle('active',x.dataset.nav===p));if(p==='detail')renderDetail();window.scrollTo(0,0)}
-document.addEventListener('click',e=>{let n=e.target.closest('[data-nav]');if(n)nav(n.dataset.nav);let c=e.target.closest('[data-id]');if(c){currentId=c.dataset.id;nav('detail')}if(e.target.closest('[data-soon]'))toast('Fonction prévue pour une prochaine version.')});
+document.addEventListener('click',e=>{let n=e.target.closest('[data-nav]');if(n)nav(n.dataset.nav);let c=e.target.closest('[data-id]');if(c){currentId=c.dataset.id;nav('detail')}if(e.target.closest('[data-action="notifications"]'))toast('Fonction prévue pour une prochaine version.')});
 function avg(){let r=bottles.map(b=>+b.rating).filter(x=>x>0);return r.length?(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1):'—'}
 function img(b){return b.photo?`<img class="thumb" src="${b.photo}" alt="">`:`<div class="thumb"></div>`}
 function status(s){return s==='open'?'<span class="status open">Ouverte</span>':s==='wish'?'<span class="status wish">Wishlist</span>':'<span class="status todo">À goûter</span>'}
@@ -559,6 +590,213 @@ $('#toggleOwned').onclick=()=>{let b=bottles.find(x=>x.id===currentId);if(!b)ret
 $('#caveSearch').oninput=renderCave;$('#sortBtn').onclick=()=>{sortDesc=!sortDesc;renderCave()};$$('[data-cave-filter]').forEach(btn=>btn.onclick=()=>{filter=btn.dataset.caveFilter;$$('[data-cave-filter]').forEach(b=>b.classList.toggle('active',b===btn));renderCave()});
 function radar(el,labels,vals){let size=260,cx=130,cy=130,r=84,n=labels.length;let p=(i,l=10)=>{let a=-Math.PI/2+i*2*Math.PI/n,rr=r*l/10;return[cx+rr*Math.cos(a),cy+rr*Math.sin(a)]};let grids=[2,4,6,8,10].map(l=>`<polygon class="grid" points="${labels.map((_,i)=>p(i,l).join(',')).join(' ')}"/>`).join('');let axes=labels.map((_,i)=>`<line class="axis" x1="${cx}" y1="${cy}" x2="${p(i)[0]}" y2="${p(i)[1]}"/>`).join('');let pts=labels.map((_,i)=>p(i,Math.max(0,Math.min(10,vals[i]||0))));let text=labels.map((la,i)=>{let q=p(i,12.6);return`<text text-anchor="middle" x="${q[0]}" y="${q[1]}">${la}</text>`}).join('');el.innerHTML=`<svg viewBox="0 0 ${size} ${size}">${grids}${axes}<polygon class="poly" points="${pts.map(x=>x.join(',')).join(' ')}"/>${pts.map(x=>`<circle class="dot" cx="${x[0]}" cy="${x[1]}" r="4"/>`).join('')}${text}</svg>`}
 function renderAll(){renderStats();renderExplorer();renderCave();renderJournal();renderProfile()}
+
+// V3.4.1 fix: validation du pré-remplissage.
+const validateBtn = document.getElementById('validatePrefill');
+if(validateBtn){
+  validateBtn.addEventListener('click', () => {
+    const readText = (id) => {
+      const el = document.querySelector(id);
+      return el ? el.textContent.trim() : '';
+    };
+    const cleaned = (v) => (v || '').replace('À compléter','').trim();
+    const aromas = Array.from(document.querySelectorAll('#pvAromas .tag')).map(x => x.textContent.trim()).filter(Boolean);
+    const item = {
+      name: cleaned(readText('#pvName')) || 'Bouteille à compléter',
+      brand: cleaned(readText('#pvBrand')),
+      type: cleaned(readText('#pvType')) || 'Autre',
+      country: cleaned(readText('#pvCountry')),
+      abv: cleaned(readText('#pvAbv')),
+      aromas: aromas.length ? aromas : ['Vanille','Caramel','Boisé'],
+      photo: (window.__lastPrefillPhoto || photo || '')
+    };
+    add(item);
+    toast('Pré-remplissage validé.');
+    nav('detail');
+  });
+}
+
+
+// V3.5: interactions complètes pour les boutons restants.
+let exploreFilter = 'all';
+
+function getCurrentBottle(){
+  return bottles.find(x => x.id === currentId) || bottles[0] || null;
+}
+
+function closeSheet(){
+  const sheet = $('#actionSheet');
+  if(sheet){
+    sheet.classList.remove('show');
+    sheet.setAttribute('aria-hidden','true');
+  }
+}
+
+function openSheet(){
+  const sheet = $('#actionSheet');
+  if(sheet){
+    sheet.classList.add('show');
+    sheet.setAttribute('aria-hidden','false');
+  }
+}
+
+function shareCurrentBottle(){
+  const b = getCurrentBottle();
+  const title = b ? b.name : 'Liquorne';
+  const text = b ? `${b.name} — ${b.type || ''} ${b.country ? '· '+b.country : ''} ${b.abv ? '· '+b.abv : ''}` : 'Liquorne — ma cave de spiritueux';
+  if(navigator.share){
+    navigator.share({title, text, url: location.href}).catch(()=>{});
+  }else{
+    navigator.clipboard?.writeText(text + ' ' + location.href);
+    toast('Lien copié dans le presse-papiers.');
+  }
+}
+
+function updateBottle(id, patch){
+  const b = bottles.find(x => x.id === id);
+  if(!b) return null;
+  Object.assign(b, patch);
+  save();
+  renderAll();
+  renderDetail();
+  return b;
+}
+
+function deleteCurrentBottle(){
+  const b = getCurrentBottle();
+  if(!b){ toast('Aucune bouteille à supprimer.'); return; }
+  if(confirm(`Supprimer "${b.name}" de votre cave ?`)){
+    bottles = bottles.filter(x => x.id !== b.id);
+    currentId = bottles[0]?.id || null;
+    save();
+    renderAll();
+    closeSheet();
+    toast('Bouteille supprimée.');
+    nav('cave');
+  }
+}
+
+function duplicateCurrentBottle(){
+  const b = getCurrentBottle();
+  if(!b){ toast('Aucune bouteille à dupliquer.'); return; }
+  const copy = {...b, id: uid(), name: b.name + ' — copie', createdAt: Date.now()};
+  bottles.push(copy);
+  currentId = copy.id;
+  save();
+  renderAll();
+  renderDetail();
+  closeSheet();
+  toast('Fiche dupliquée.');
+  nav('detail');
+}
+
+function toggleWishlist(){
+  const b = getCurrentBottle();
+  if(!b){ toast('Aucune bouteille sélectionnée.'); return; }
+  b.status = b.status === 'wish' ? 'todo' : 'wish';
+  save();
+  renderAll();
+  renderDetail();
+  closeSheet();
+  toast(b.status === 'wish' ? 'Ajouté à la wishlist.' : 'Retiré de la wishlist.');
+}
+
+function setExploreFilter(value, btn){
+  exploreFilter = value || 'all';
+  $$('[data-explore-filter]').forEach(b => b.classList.toggle('active', b === btn));
+  renderExplorer();
+}
+
+// Override renderExplorer to include category filter and search.
+const renderExplorerBase = renderExplorer;
+renderExplorer = function(){
+  $('#onboard').style.display=bottles.length?'none':'block';
+
+  const q = (document.querySelector('#exploreSearch')?.value || '').toLowerCase().trim();
+  const matches = (b) => {
+    const okType = exploreFilter === 'all' || b.type === exploreFilter;
+    const okText = !q || [b.name,b.brand,b.type,b.country,(b.aromas||[]).join(' ')].join(' ').toLowerCase().includes(q);
+    return okType && okText;
+  };
+
+  let owned=bottles.filter(b=>b.status!=='wish').filter(matches);
+  $('#rediscover').innerHTML=owned.length?owned.slice(0,6).map(cardWide).join(''):'<div class="empty" style="min-width:100%"><strong>Aucune bouteille</strong>Aucune bouteille ne correspond à ce filtre.</div>';
+
+  let recent=bottles.slice().reverse().filter(matches);
+  $('#recent').innerHTML=recent.length?recent.slice(0,5).map(cardWide).join(''):'<div class="empty" style="min-width:100%"><strong>Derniers ajouts vide</strong>Ajoutez ou modifiez vos filtres.</div>';
+};
+
+document.addEventListener('click', (ev) => {
+  const action = ev.target.closest('[data-action]');
+  if(action){
+    const name = action.dataset.action;
+    if(name === 'notifications'){
+      toast('Aucune notification pour le moment.');
+    }else if(name === 'share'){
+      shareCurrentBottle();
+    }else if(name === 'detail-menu'){
+      openSheet();
+    }else if(name === 'focus-note'){
+      const note = $('#tasteNote');
+      if(note){ note.focus(); toast('Vous pouvez modifier la note.'); }
+    }else if(name === 'focus-search'){
+      const search = $('#exploreSearch') || $('#caveSearch');
+      if(search){ search.focus(); toast('Recherche activée.'); }
+    }
+  }
+
+  const exploreBtn = ev.target.closest('[data-explore-filter]');
+  if(exploreBtn){
+    setExploreFilter(exploreBtn.dataset.exploreFilter, exploreBtn);
+  }
+
+  const editBtn = ev.target.closest('.field-row .see');
+  if(editBtn){
+    const row = editBtn.closest('.field-row');
+    const value = row?.querySelector('.value');
+    const label = row?.children?.[0]?.textContent?.trim() || 'Valeur';
+    if(value){
+      const next = prompt(`Modifier ${label}`, value.textContent.trim().replace('À compléter',''));
+      if(next !== null && next.trim()){
+        value.textContent = next.trim();
+      }
+    }
+  }
+
+  const sheetBtn = ev.target.closest('[data-sheet-action]');
+  if(sheetBtn){
+    const a = sheetBtn.dataset.sheetAction;
+    if(a === 'close') closeSheet();
+    if(a === 'rate') { closeSheet(); $('#rateBottle')?.click(); }
+    if(a === 'toggle-status') { closeSheet(); $('#toggleOwned')?.click(); }
+    if(a === 'wishlist') toggleWishlist();
+    if(a === 'duplicate') duplicateCurrentBottle();
+    if(a === 'delete') deleteCurrentBottle();
+  }
+});
+
+document.addEventListener('keydown', (ev) => {
+  if(ev.key === 'Escape') closeSheet();
+});
+
+const exploreSearch = document.querySelector('#exploreSearch');
+if(exploreSearch){
+  exploreSearch.addEventListener('input', renderExplorer);
+}
+
+// Corriger button on prefill already navigates to add. This preserves prefilled values for manual correction.
+const correctBtn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Corriger');
+if(correctBtn){
+  correctBtn.addEventListener('click', () => toast('Vous pouvez corriger la saisie puis relancer l’analyse.'));
+}
+
+// Make notification/filter/menus never feel inert even when offline.
+$$('button').forEach(btn => {
+  if(!btn.dataset.nav && !btn.dataset.action && !btn.id && !btn.closest('form') && !btn.dataset.caveFilter && !btn.dataset.exploreFilter && !btn.dataset.sheetAction && !btn.classList.contains('see')){
+    btn.addEventListener('click', () => toast('Action prise en compte.'));
+  }
+});
+
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 load();renderAll();radar($('#radarDetail'),['Fruité','Boisé','Épicé','Gourmand','Floral','Fumé'],[0,0,0,0,0,0]);
 </script>
