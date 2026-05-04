@@ -1,19 +1,16 @@
 {
   "name": "Liquorne",
   "short_name": "Liquorne",
-  "description": "Votre cave personnelle de spiritueux.",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#061221",
   "theme_color": "#061221",
+  "background_color": "#061221",
   "icons": [
     {
-      "src": "./icons/icon.svg",
+      "src": "./icons/liquorne-logo.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/svg+xml"
     }
   ]
 }
